@@ -1,15 +1,18 @@
+// Import multer
 const multer = require('multer');
 
+// Set up multer storage
 const storage = multer.diskStorage({
-    destination: function(req, file, callback) {
-       callback(null, './uploads/');
-    },
-    filename: function(req, file, callback) {
-       callback(null, file.originalname + '-' + Date.now());
-    }
- });
- 
- const upload = multer({ storage: storage });
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/')
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${file.originalname}-${Date.now()}`)
+  }
+});
 
- module.exports = upload;
+// Set up multer upload object
+const upload = multer({ storage: storage });
+
+module.exports = upload;
  

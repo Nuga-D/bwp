@@ -17,24 +17,33 @@ module.exports = {
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+    try{
     const operator = await operatorService.createOperator(email, hashedPassword, role);
     const token = jwt.sign(
       { operatorId: operator.id, role: operator.role },
       config.secretKey,
       { expiresIn: "1h" }
     );
-    res.json({ operator, token });
+    res.json({operator, token });} catch(error) {
+      console.error(error);
+      res.status(500).json({ message: "Error creating operator" });
+    }
   },
 
   async login(req, res) {
     const { email, password } = req.body;
     try {
-      const operator = await operatorService.authenticate(email, password);
+      const inOperator = await operatorService.authenticate(email, password);
       const token = jwt.sign(
-        { operatorId: operator.id, role: operator.role },
+        { operatorId: inOperator.id, role: inOperator.role },
         config.secretKey,
         { expiresIn: "1h" }
       );
+      const operator = {
+        id: inOperator.id,
+        email: inOperator.email,
+        role: inOperator.role
+      }
       res.json({ operator, token });
     } catch (error) {
       res.status(401).json({ message: error.message });
@@ -71,7 +80,7 @@ module.exports = {
       res
         .status(200)
         .send(
-          `operator ${operator.id} registered successfully, an email will be sent upon verification`
+          `operator ${operatorId} registered successfully, an email will be sent upon verification`
         );
     } catch (err) {
       console.error(err);
@@ -85,23 +94,33 @@ module.exports = {
     const decodedToken = jwt.verify(token, config.secretKey);
     const operatorId = decodedToken.operatorId;
     const role = decodedToken.role;
-    const picture = req.picture;
-
+  
     try {
       if (role !== "operator") {
         return res.status(401).send("Unauthorized");
       }
-
-      const operator = await operatorService.addPicture(picture, operatorId);
-      res
-        .status(200)
-        .send(
-          `operator ${operator.id} picture added successfully, an email will be sent upon verification`
-        );
+  
+      // Use multer to get the picture from the request
+      upload.single('picture')(req, res, async function (err) {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Internal server error");
+        }
+  
+        // Get the picture file from the request object
+        const picture = req.picture;
+  
+        // Call the service to add the picture
+        const operator = await operatorService.addPicture(picture, operatorId);
+        res
+          .status(200)
+          .send(
+            `operator ${operatorId} picture added successfully, an email will be sent upon verification`
+          );
+      });
     } catch (err) {
       console.error(err);
       res.status(500).send("Internal server error");
     }
-
-  } 
+  }
 };
