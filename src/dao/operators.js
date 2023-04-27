@@ -51,7 +51,7 @@ module.exports = {
   },
 
   async addPicture(picture, operator_id) {
-    const sql = "UPDATE operator_profile SET picture = ? WHERE operator_id = ?";
+    const sql = "UPDATE operator_profile SET user_picture = ? WHERE operator_id = ?";
     const values = [picture, operator_id];
     const [result] = await pool.execute(sql, values);
     return result[0];
@@ -63,4 +63,24 @@ module.exports = {
     const [result] = await pool.execute(sql, values);
     return result[0];
   },
+
+  async getAllOperators() {
+    const sql = "SELECT * FROM operators";
+    const [result] = await pool.execute(sql);
+    return result;
+  },
+
+  async selectProduct(product, seedType, operatorId) {
+    const sql = "INSERT INTO product (product, seed_type, operator_id) VALUES (?, ?, ?)";
+    const values = [product, seedType, operatorId];
+    const [result] = await pool.execute(sql, values);
+    return result[0];
+  },
+
+  async getVerification(operatorId) {
+    const sql = "SELECT verified FROM verify WHERE operator_id = ?";
+    const values = [operatorId];
+    const [result] = await pool.execute(sql, values);
+    return result[0];
+  }
 };

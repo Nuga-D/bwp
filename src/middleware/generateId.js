@@ -18,7 +18,7 @@ const generateOperatorId = async function() {
 
 const generateAdminId = async function() {
   // Retrieve the current highest sequence number from the database
-  const query = 'SELECT MAX(SUBSTRING_INDEX(id, "-", 1)) AS max_sequence FROM users;'
+  const query = 'SELECT MAX(SUBSTRING_INDEX(id, "-", 1)) AS max_sequence FROM admin;'
   const [result] = await pool.query(query)
   const maxSequence = result[0].max_sequence || 0
   

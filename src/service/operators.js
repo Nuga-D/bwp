@@ -1,4 +1,4 @@
-// service/auth.js
+// service/operators.js
 
 const bcrypt = require("bcrypt");
 const operatorDao = require('../dao/operators');
@@ -22,6 +22,18 @@ module.exports = {
   
   async getOperatorByEmail(email) {
     return await operatorDao.getOperatorByEmail(email);
+  },
+
+  async getAllOperators() {
+    return await operatorDao.getAllOperators();
+  },
+
+  async selectProduct(product, seedType, operatorId) {
+    return await operatorDao.selectProduct(product, seedType, operatorId);
+  },
+
+  async getVerification(operatorId) {
+    return await operatorDao.getVerification(operatorId);
   },
 
   async authenticate(email, password) {
