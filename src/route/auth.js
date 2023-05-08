@@ -2,18 +2,21 @@
 
 const express = require('express');
 const router = express.Router();
+const userController = require('../controller/users');
 const operatorController = require('../controller/operators');
 const adminController = require('../controller/admin');
 
-router.post('/operators/create', operatorController.createOperator);
-router.post('/operators/login', operatorController.login);
+router.post('/users/create', userController.createUser);
+router.post('/users/login', userController.login);
 router.post('/operators/register', operatorController.registerOperator);
-router.patch('/operators/picture', operatorController.addPicture);
-router.post('/operators/product', operatorController.selectProduct);
-router.post('/admins/register', adminController.createAdmin);
-router.post('/admins/login', adminController.login);
+router.patch('/operators/uploadPicture', operatorController.addPicture);
+router.post('/operators/selectProduct', operatorController.selectProduct);
+router.post('/operators/recruit/:foId', operatorController.recruitFO);
+router.get('/operators/getFOs/:operatorId', operatorController.getFOsByOperatorId);
 router.post('/admins/verify/:operatorId', adminController.verifyOperator);
-router.get('/admins/operators', adminController.getAllOperators);
+router.get('/admins/getOperators', adminController.getAllOperators);
+router.post('/fos/create',foController.createFO);
+router.post('/fos/login', foController.login);
 
 
 

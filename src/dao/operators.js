@@ -1,18 +1,9 @@
 const pool = require("../db/pool");
-const idGen = require("../middleware/generateId");
 
 module.exports = {
-  async createOperator(email, password, role) {
-    const sql =
-      "INSERT INTO operators (id, email, password, role, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())";
-    const id = await idGen.generateOperatorId();
-    const values = [id, email, password, role];
-    const [result] = await pool.execute(sql, values);
-    return {id, email, role};
-  },
 
   async getOperatorById(id) {
-    const sql = "SELECT * FROM operators WHERE id = ?";
+    const sql = "SELECT * FROM users WHERE id = ? AND role = 'operator'";
     const values = [id];
     const [result] = await pool.execute(sql, values);
     return result[0];
@@ -31,8 +22,9 @@ module.exports = {
     nin
   ) {
     const sql =
-      "INSERT INTO operator_profile (operator_id, first_name, last_name, phone_number, nationality, state, lga, sex, dob, nin, user_picture, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+      "INSERT INTO operator_profile (operator_id, first_name, last_name, phone_number, nationality, state, lga, sex, dob, nin, user_picture, created_at, updated_at, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)";
     const picture = "nan";
+    const isVerified = "false";
     const values = [
       operator_id,
       firstName,
@@ -45,6 +37,7 @@ module.exports = {
       dob,
       nin,
       picture,
+      isVerified
     ];
     const [result] = await pool.execute(sql, values);
     return result[0];
@@ -58,14 +51,14 @@ module.exports = {
   },
 
   async getOperatorByEmail(email) {
-    const sql = "SELECT * FROM operators WHERE email = ?";
+    const sql = "SELECT * FROM users WHERE email = ? AND role = 'operator'";
     const values = [email];
     const [result] = await pool.execute(sql, values);
     return result[0];
   },
 
   async getAllOperators() {
-    const sql = "SELECT * FROM operators";
+    const sql = "SELECT * FROM users WHERE role = 'operator'";
     const [result] = await pool.execute(sql);
     return result;
   },
@@ -78,9 +71,21 @@ module.exports = {
   },
 
   async getVerification(operatorId) {
-    const sql = "SELECT verified FROM verify WHERE operator_id = ?";
+    const sql = "SELECT is_verified FROM operator_profile WHERE operator_id = ?";
     const values = [operatorId];
     const [result] = await pool.execute(sql, values);
     return result[0];
-  }
+  },
+
+  async recruitFO(operatorId, foId) {
+    const sql = 'INSERT INTO operator_fo (operator_id, fo_id) VALUES (?, ?)';
+    const [result] = await pool.execute(sql, [operatorId, foId]);
+    return result[0];
+  },
+
+  async getFOsByOperatorId(operatorId) {
+    const sql = 'SELECT * FROM operator_fo WHERE operator_id = ?';
+    const [result] = await pool.execute(sql, [operatorId]);
+    return result;
+  },
 };

@@ -4,10 +4,6 @@ const bcrypt = require("bcrypt");
 const operatorDao = require('../dao/operators');
 
 module.exports = {
-  async createOperator(email, password, role) {
-    return await operatorDao.createOperator(email, password, role);
-  },
-  
   async getOperatorById(id) {
     return await operatorDao.getOperatorById(id);
   },
@@ -34,6 +30,14 @@ module.exports = {
 
   async getVerification(operatorId) {
     return await operatorDao.getVerification(operatorId);
+  },
+
+  async recruitFO(operatorId, foId) {
+    return operatorDao.recruitFO(operatorId, foId);
+  },
+
+  async getFOsByOperatorId(operatorId) {
+    return operatorDao.getFOsByOperatorId(operatorId);
   },
 
   async authenticate(email, password) {

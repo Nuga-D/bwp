@@ -3,11 +3,7 @@
 const bcrypt = require("bcrypt");
 const adminDao = require('../dao/admins');
 
-module.exports = {
-  async createAdmin(email, password, role) {
-    return await adminDao.createAdmin(email, password, role);
-  },
-  
+module.exports = {  
   async getAdminById(id) {
     return await adminDao.getAdminById(id);
   },
@@ -16,8 +12,8 @@ module.exports = {
     return await adminDao.getAdminByEmail(email);
   },
 
-  async verifyOperator(operatorId, adminId, verified) {
-    return await adminDao.verifyOperator(operatorId, adminId, verified);
+  async verifyOperator(verified, operatorId) {
+    return await adminDao.verifyOperator(verified, operatorId);
   },
 
   async authenticate(email, password) {
