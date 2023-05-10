@@ -18,7 +18,7 @@ module.exports = {
     },
 
     async verifyOperator(verified, operatorId) {
-      const sql = "UPDATE operator_profile SET isVerified = ? WHERE operator_id = ?";
+      const sql = "UPDATE operator_profile SET is_verified = ? WHERE operator_id = ?";
       const values = [verified, operatorId]
       const [result] = await pool.execute(sql, values);
       return result[0];

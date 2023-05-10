@@ -64,7 +64,7 @@ module.exports = {
   },
 
   async selectProduct(product, seedType, operatorId) {
-    const sql = "INSERT INTO product (product, seed_type, operator_id) VALUES (?, ?, ?)";
+    const sql = "INSERT INTO operator_product (product, seed_type, operator_id) VALUES (?, ?, ?)";
     const values = [product, seedType, operatorId];
     const [result] = await pool.execute(sql, values);
     return result[0];
@@ -88,4 +88,52 @@ module.exports = {
     const [result] = await pool.execute(sql, [operatorId]);
     return result;
   },
+
+  async getAllProducts() {
+    const sql = 'SELECT * FROM products';
+    const [result] = await pool.execute(sql);
+    return result;
+  },
+
+  async getProductIdByName(productName) {
+    const sql = 'SELECT id FROM products WHERE productName = ?';
+    const [result] = await pool.execute(sql, [productName]);
+    return result;
+  },
+
+  async getSeedTypes() {
+    const sql = 'SELECT * FROM seed_types';
+    const [result] = await pool.execute(sql);
+    return result;
+  },
+
+  async getSeedType(seedType) {
+    const sql = 'SELECT * FROM seed_types WHERE name = ?';
+    const [result] = await pool.execute(sql, [seedType]);
+    return result;
+  },
+
+  async getAllStates() {
+    const sql = 'SELECT * FROM states';
+    const[result] = await pool.execute(sql);
+    return result;
+  },
+
+  async getStateIdByName(stateName) {
+    const sql = 'SELECT id FROM states WHERE name = ?';
+    const [result] = await pool.execute(sql, [stateName]);
+    return result;
+  },
+
+  async getLgas() {
+    const sql = 'SELECT * FROM lgas';
+    const [result] = await pool.execute(sql);
+    return result;
+  },
+
+  async getLga(lga) {
+    const sql = 'SELECT * FROM lgas WHERE name = ?';
+    const [result] = await pool.execute(sql, [lga]);
+    return result;
+  }
 };

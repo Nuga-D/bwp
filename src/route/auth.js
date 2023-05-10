@@ -15,8 +15,7 @@ router.post('/operators/recruit/:foId', operatorController.recruitFO);
 router.get('/operators/getFOs/:operatorId', operatorController.getFOsByOperatorId);
 router.post('/admins/verify/:operatorId', adminController.verifyOperator);
 router.get('/admins/getOperators', adminController.getAllOperators);
-router.post('/fos/create',foController.createFO);
-router.post('/fos/login', foController.login);
+
 
 
 

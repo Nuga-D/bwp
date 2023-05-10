@@ -6,8 +6,6 @@ const foService = require("../service/fos");
 const config = require("../../config");
 const upload = require("../middleware/multer");
 const validation = require("../middleware/validation");
-const states = require("../dao/states");
-const seeds = require("../dao/seeds");
 
 module.exports = {
   async registerOperator(req, res) {
@@ -16,6 +14,11 @@ module.exports = {
     const decodedToken = jwt.verify(token, config.secretKey);
     const operatorId = decodedToken.userId;
     const role = decodedToken.role;
+    const states = await operatorService.getAllStates();
+    const lgas = await operatorService.getLgas();
+
+    const stateNames = states.map(state => state.name);
+    const lgaNames = lgas.map(lga => lga.name);
 
     const { error, value } = validation.registerOperatorSchema.validate(
       req.body
@@ -43,11 +46,29 @@ module.exports = {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      if (!states[state].includes(lga)) {
+      if (!stateNames.includes(toString(state))) {
         return res.status(400).json({
-          message: "Selected LGA does not belong to the selected state",
+          message: "Selected state not a Nigerian state!"
         });
       }
+
+      const stateId = await operatorService.getStateIdByName(state);
+
+      if (!lgaNames.includes(toString(lga))) {
+        return res.status(400).json({
+          message: "Selected local government not in Nigeria!"
+        });
+      }
+
+      const lgaInfo = await operatorService.getLga(lga);
+
+      const stateIdInput = lgaInfo.state_id;
+
+      if (parseInt(stateId) !== parseInt(stateIdInput)) {
+        return res.status(400).json({
+          message: "Selected LGA does not belong to the selected state"
+        })}
+
 
       const operator = await operatorService.registerOperator(
         operatorId,
@@ -79,6 +100,12 @@ module.exports = {
     const operatorId = decodedToken.userId;
     const role = decodedToken.role;
     const verified = parseInt(decodedToken.isVerified);
+    const products = await operatorService.getAllProducts();
+    const seedTypes = await operatorService.getSeedTypes();
+
+    const productNames = products.map(product => product.name);
+    const seedTypeNames = seedTypes.map(seedType => seedType.name);
+
 
     const { error, value } = validation.selectProductSchema.validate(req.body);
     if (error) {
@@ -98,10 +125,28 @@ module.exports = {
           .json({ message: "Request verification from admin to progress!" });
       }
 
-      if (!seeds[product].includes(seedType)) {
+      if (!productNames.includes(toString(product))) {
         return res.status(400).json({
-          message: "Selected ssed type does not belong to the selected product",
+          message: "Selected product not available at this time. Check back later!"
         });
+      }
+
+      const productId = await operatorService.getProductIdByName(product);
+
+      if (!seedTypeNames.includes(toString(seedType))) {
+        return res.status(400).json({
+          message: "Selected seed type not available at this time. Check back later!"
+        });
+      }
+
+      const seedTypeInfo = await operatorService.getSeedType(seedType);
+
+      const productIdInput = seedTypeInfo.product_id;
+
+      if (parseInt(productId) !== parseInt(productIdInput)) {
+        return res.status(400).json({
+          message: "Selected seed type does not belong to the selected product"
+        })
       }
 
       const productAdd = await operatorService.selectProduct(

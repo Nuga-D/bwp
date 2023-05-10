@@ -51,6 +51,38 @@ module.exports = {
     }
     return operator;
   },
+
+  async getAllProducts() {
+    return operatorDao.getAllProducts();
+  },
+
+  async getProductIdByName(productName) {
+    return await operatorDao.getProductIdByName(productName);
+  },
+
+  async getSeedTypes() {
+    return await operatorDao.getSeedTypes();
+  },
+
+  async getSeedType(seedType) {
+    return await operatorDao.getSeedType(seedType);
+  },
+
+  async getAllStates() {
+    return operatorDao.getAllStates();
+  },
+
+  async getStateIdByName(stateName) {
+    return await operatorDao.getStateIdByName(stateName);
+  },
+
+  async getLgas() {
+    return await operatorDao.getLgas();
+  },
+
+  async getLga(lga) {
+    return await operatorDao.getLga(lga);
+  }
 };
 
 

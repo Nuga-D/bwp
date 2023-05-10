@@ -1,51 +1,97 @@
 const Joi = require("joi");
-const states = require("../dao/states");
-const seeds = require("../dao/seeds");
 
 const createUserValidation = Joi.object({
-  email: Joi.string().email().required(),
+  email: Joi.string().email().required().messages({
+    "string.email": "Invalid email format",
+    "any.required": "Email is required",
+  }),
   password: Joi.string()
     .min(8)
     .pattern(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&.]{8,}$/
     )
-    .required(),
-  role: Joi.string().valid("admin", "operator").required(),
+    .required()
+    .messages({
+      "string.min": "Password must be at least 8 characters long",
+      "string.pattern.base":
+        "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character",
+      "any.required": "Password is required",
+    }),
+    role: Joi.string()
+    .valid("admin", "operator")
+    .required()
+    .messages({
+      'any.only': 'Invalid role. Allowed roles are \'admin\' and \'operator\'',
+      'any.required': 'Role is required',
+    }),
 });
 
 const loginValidation = Joi.object({
-  email: Joi.string().email().required(),
-  password: Joi.string().required(),
+  email: Joi.string().email().required().messages({
+    "string.email": "Invalid email format",
+    "any.required": "Email is required",
+  }),
+  password: Joi.string().required().messages({
+    "any.required": "Password is required",
+  }),
 });
 
 const registerOperatorSchema = Joi.object({
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required(),
-  phoneNumber: Joi.string().length(11).pattern(/^\d+$/).required(),
-  nationality: Joi.string().valid("Nigerian").required(),
-  state: Joi.string()
-    .valid(...Object.keys(states))
-    .required(),
-  lga: Joi.string()
-    .valid(...[].concat(...Object.values(states)))
-    .required(),
-  sex: Joi.string().valid("male", "female").required(),
-  dob: Joi.date().required(),
-  nin: Joi.string().length(11).pattern(/^\d+$/).required(),
+  firstName: Joi.string().required().messages({
+    "any.required": "First name is required",
+  }),
+  lastName: Joi.string().required().messages({
+    "any.required": "Last name is required",
+  }),
+  phoneNumber: Joi.string().length(11).pattern(/^\d+$/).required().messages({
+    "string.length": "Phone number must be 11 digits long",
+    "string.pattern.base": "Phone number must contain only digits",
+    "any.required": "Phone number is required",
+  }),
+  nationality: Joi.string().valid("Nigerian").required().messages({
+    "string.valid": 'Invalid nationality. Only "Nigerian" is allowed',
+    "any.required": "Nationality is required",
+  }),
+  state: Joi.string().required().messages({
+    "any.required": "State is required",
+  }),
+  lga: Joi.string().required().messages({
+    "any.required": "LGA is required",
+  }),
+  sex: Joi.string().valid("male", "female").required().messages({
+    "string.valid": 'Invalid sex. Allowed values are "male" and "female"',
+    "any.required": "Sex is required",
+  }),
+  dob: Joi.date()
+    .min("1930-01-01") // Adjust the minimum date as needed
+    .max("now") // Allow dates up to the current date
+    .required()
+    .messages({
+      "date.format": "Date of birth must be in the format YYYY-MM-DD",
+      "date.base": "Invalid date of birth",
+      "date.min": "Date of birth must be after 1930-01-01",
+      "date.max": "Date of birth cannot be in the future",
+      "any.required": "Date of birth is required",
+    }),
+  nin: Joi.string().length(11).pattern(/^\d+$/).required().messages({
+    "string.length": "NIN must be 11 digits long",
+    "string.pattern.base": "NIN must contain only digits",
+    "any.required": "NIN is required",
+  }),
 });
 
 const selectProductSchema = Joi.object({
-    product: Joi.string()
-    .valid(...Object.keys(seeds))
-    .required(),
-    seedType: Joi.string()
-    .valid(...[].concat(...Object.values(seeds)))
-    .required(),
-})
+  product: Joi.string().required().messages({
+    "any.required": "Product is required",
+  }),
+  seedType: Joi.string().required().messages({
+    "any.required": "Seed type is required",
+  }),
+});
 
 module.exports = {
   createUserValidation,
   loginValidation,
   registerOperatorSchema,
-  selectProductSchema
+  selectProductSchema,
 };
