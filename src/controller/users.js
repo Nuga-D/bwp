@@ -53,24 +53,24 @@ module.exports = {
       const existingUser = await userService.authenticate(email, password);
       const verified = await operatorService.getVerification(existingUser.id);
 
-      if (toString(existingUser.role) === "operator") {
-        const token = jwt.sign(
+      let token = '';
+
+      if (existingUser.role === "operator") {
+        token = jwt.sign(
           {
             userId: existingUser.id,
             role: existingUser.role,
-            isVerified: verified,
+            isVerified: verified.is_verified,
           },
           config.secretKey,
           { expiresIn: "30d" }
         );
-        return token;
-      } else if(toString(existingUser.role) !== "operator") {
-        const token = jwt.sign(
+      } else if(existingUser.role !== "operator") {
+        token = jwt.sign(
           { userId: existingUser.id, role: existingUser.role },
           config.secretKey,
           { expiresIn: "30d" }
         );
-        return token;
       }
 
       const user = {

@@ -37,10 +37,12 @@ const loginValidation = Joi.object({
 });
 
 const registerOperatorSchema = Joi.object({
-  firstName: Joi.string().required().messages({
+  firstName: Joi.string().pattern(/^[A-Za-z]+$/).required().messages({
+    "string.pattern.base": "First name must contain only letters",
     "any.required": "First name is required",
   }),
-  lastName: Joi.string().required().messages({
+  lastName: Joi.string().pattern(/^[A-Za-z]+$/).required().messages({
+    "string.pattern.base": "Last name must contain only letters",
     "any.required": "Last name is required",
   }),
   phoneNumber: Joi.string().length(11).pattern(/^\d+$/).required().messages({
@@ -48,9 +50,12 @@ const registerOperatorSchema = Joi.object({
     "string.pattern.base": "Phone number must contain only digits",
     "any.required": "Phone number is required",
   }),
-  nationality: Joi.string().valid("Nigerian").required().messages({
-    "string.valid": 'Invalid nationality. Only "Nigerian" is allowed',
-    "any.required": "Nationality is required",
+  nationality: Joi.string()
+  .valid('Nigerian')
+  .required()
+  .messages({
+    'any.only': 'Invalid nationality. Only \'Nigerian\' is allowed',
+    'any.required': 'Nationality is required',
   }),
   state: Joi.string().required().messages({
     "any.required": "State is required",
@@ -59,10 +64,11 @@ const registerOperatorSchema = Joi.object({
     "any.required": "LGA is required",
   }),
   sex: Joi.string().valid("male", "female").required().messages({
-    "string.valid": 'Invalid sex. Allowed values are "male" and "female"',
+    "any.only": 'Invalid sex. Allowed values are \'male\' and \'female\'',
     "any.required": "Sex is required",
   }),
   dob: Joi.date()
+    .format('iso')
     .min("1930-01-01") // Adjust the minimum date as needed
     .max("now") // Allow dates up to the current date
     .required()

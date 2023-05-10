@@ -2,7 +2,7 @@ const pool = require('../db/pool')
 
 const generateOperatorId = async function() {
   // Retrieve the current highest sequence number from the database
-  const query = 'SELECT MAX(SUBSTRING_INDEX(id, "-", 1)) AS max_sequence FROM operators;'
+  const query = 'SELECT MAX(SUBSTRING_INDEX(id, "-", 1)) AS max_sequence FROM users;'
   const [result] = await pool.query(query)
   const maxSequence = parseInt(result[0].max_sequence) || 0
   
@@ -18,7 +18,7 @@ const generateOperatorId = async function() {
 
 const generateAdminId = async function() {
   // Retrieve the current highest sequence number from the database
-  const query = 'SELECT MAX(SUBSTRING_INDEX(id, "-", 1)) AS max_sequence FROM admin;'
+  const query = 'SELECT MAX(SUBSTRING_INDEX(id, "-", 1)) AS max_sequence FROM users;'
   const [result] = await pool.query(query)
   const maxSequence = result[0].max_sequence || 0
   
@@ -48,7 +48,7 @@ const generateMemberId = async function() {
 
 const generateFOsId = async function() {
   // Retrieve the current highest sequence number from the database
-  const query = 'SELECT MAX(SUBSTRING_INDEX(id, "-", 1)) AS max_sequence FROM fos;'
+  const query = 'SELECT MAX(SUBSTRING_INDEX(id, "-", 1)) AS max_sequence FROM users;'
   const [result] = await pool.query(query)
   const maxSequence = result[0].max_sequence || 0
   

@@ -24,7 +24,7 @@ module.exports = {
     const sql =
       "INSERT INTO operator_profile (operator_id, first_name, last_name, phone_number, nationality, state, lga, sex, dob, nin, user_picture, created_at, updated_at, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)";
     const picture = "nan";
-    const isVerified = "false";
+    const isVerified = "0";
     const values = [
       operator_id,
       firstName,
@@ -96,9 +96,9 @@ module.exports = {
   },
 
   async getProductIdByName(productName) {
-    const sql = 'SELECT id FROM products WHERE productName = ?';
+    const sql = 'SELECT id FROM products WHERE name = ?';
     const [result] = await pool.execute(sql, [productName]);
-    return result;
+    return result[0];
   },
 
   async getSeedTypes() {
@@ -110,7 +110,7 @@ module.exports = {
   async getSeedType(seedType) {
     const sql = 'SELECT * FROM seed_types WHERE name = ?';
     const [result] = await pool.execute(sql, [seedType]);
-    return result;
+    return result[0];
   },
 
   async getAllStates() {
@@ -122,7 +122,7 @@ module.exports = {
   async getStateIdByName(stateName) {
     const sql = 'SELECT id FROM states WHERE name = ?';
     const [result] = await pool.execute(sql, [stateName]);
-    return result;
+    return result[0];
   },
 
   async getLgas() {
@@ -134,6 +134,6 @@ module.exports = {
   async getLga(lga) {
     const sql = 'SELECT * FROM lgas WHERE name = ?';
     const [result] = await pool.execute(sql, [lga]);
-    return result;
+    return result[0];
   }
 };

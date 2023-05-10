@@ -46,7 +46,7 @@ module.exports = {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      if (!stateNames.includes(toString(state))) {
+      if (!stateNames.includes(state)) {
         return res.status(400).json({
           message: "Selected state not a Nigerian state!"
         });
@@ -54,7 +54,7 @@ module.exports = {
 
       const stateId = await operatorService.getStateIdByName(state);
 
-      if (!lgaNames.includes(toString(lga))) {
+      if (!lgaNames.includes(lga)) {
         return res.status(400).json({
           message: "Selected local government not in Nigeria!"
         });
@@ -64,7 +64,7 @@ module.exports = {
 
       const stateIdInput = lgaInfo.state_id;
 
-      if (parseInt(stateId) !== parseInt(stateIdInput)) {
+      if (parseInt(stateId.id) !== parseInt(stateIdInput)) {
         return res.status(400).json({
           message: "Selected LGA does not belong to the selected state"
         })}
@@ -125,7 +125,7 @@ module.exports = {
           .json({ message: "Request verification from admin to progress!" });
       }
 
-      if (!productNames.includes(toString(product))) {
+      if (!productNames.includes(product)) {
         return res.status(400).json({
           message: "Selected product not available at this time. Check back later!"
         });
@@ -133,7 +133,7 @@ module.exports = {
 
       const productId = await operatorService.getProductIdByName(product);
 
-      if (!seedTypeNames.includes(toString(seedType))) {
+      if (!seedTypeNames.includes(seedType)) {
         return res.status(400).json({
           message: "Selected seed type not available at this time. Check back later!"
         });
@@ -143,7 +143,7 @@ module.exports = {
 
       const productIdInput = seedTypeInfo.product_id;
 
-      if (parseInt(productId) !== parseInt(productIdInput)) {
+      if (parseInt(productId.id) !== parseInt(productIdInput)) {
         return res.status(400).json({
           message: "Selected seed type does not belong to the selected product"
         })
@@ -236,7 +236,7 @@ module.exports = {
         // Get the picture file from the request object
         const picture = req.file;
 
-        const filename = picture.filename;
+        const filename = picture.originalname;
 
         // Call the service to add the picture
         const operator = await operatorService.addPicture(filename, operatorId);
