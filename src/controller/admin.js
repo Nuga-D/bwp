@@ -33,7 +33,7 @@ module.exports = {
     }
   },
 
-  async getAllOperators(req, res) {
+  async getRegisteredOperators(req, res) {
     const authHeader = req.headers.authorization;
     const token = authHeader.split(" ")[1];
     const decodedToken = jwt.verify(token, config.secretKey);
@@ -42,7 +42,7 @@ module.exports = {
       if (role !== "admin") {
         return res.status(401).json({message: "Unauthorized"});
       }
-      const operators = await operatorService.getAllOperators();
+      const operators = await operatorService.getRegisteredOperators();
       res.json({ operators });
     } catch (error) {
       console.error(error);

@@ -14,7 +14,7 @@ router.post('/operators/selectProduct', operatorController.selectProduct);
 router.post('/operators/recruit/:foId', operatorController.recruitFO);
 router.get('/operators/getFOs/:operatorId', operatorController.getFOsByOperatorId);
 router.post('/admins/verify/:operatorId', adminController.verifyOperator);
-router.get('/admins/getOperators', adminController.getAllOperators);
+router.get('/admins/getRegisteredOperators', adminController.getRegisteredOperators);
 
 
 

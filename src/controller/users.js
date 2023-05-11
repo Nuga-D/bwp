@@ -30,7 +30,7 @@ module.exports = {
     try {
       const user = await userService.createUser(email, hashedPassword, role);
       const token = jwt.sign(
-        { userId: user.id, role: user.role },
+        { userId: user.unique_id, role: user.role },
         config.secretKey,
         { expiresIn: "30d" }
       );
@@ -64,7 +64,7 @@ module.exports = {
       if (existingUser.role === "operator") {
         token = jwt.sign(
           {
-            userId: existingUser.id,
+            userId: existingUser.unique_id,
             role: existingUser.role,
             isVerified: isVerified,
           },
@@ -73,14 +73,14 @@ module.exports = {
         );
       } else if(existingUser.role !== "operator") {
         token = jwt.sign(
-          { userId: existingUser.id, role: existingUser.role },
+          { userId: existingUser.unique_id, role: existingUser.role },
           config.secretKey,
           { expiresIn: "30d" }
         );
       }
 
       const user = {
-        id: existingUser.id,
+        id: existingUser.unique_id,
         email: existingUser.email,
         role: existingUser.role,
       };

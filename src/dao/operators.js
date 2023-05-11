@@ -57,15 +57,19 @@ module.exports = {
     return result[0];
   },
 
-  async getAllOperators() {
-    const sql = "SELECT id, email, role FROM users WHERE role = 'operator'";
+  async getRegisteredOperators() {
+    const sql = `SELECT u.unique_id, u.email, u.role, op.is_verified
+    FROM users u
+    JOIN operator_profile op ON u.unique_id = op.operator_id
+    WHERE u.role = 'operator';
+    `;
     const [result] = await pool.execute(sql);
     return result;
   },
 
-  async selectProduct(product, seedType, operatorId) {
-    const sql = "INSERT INTO operator_product (product, seed_type, operator_id) VALUES (?, ?, ?)";
-    const values = [product, seedType, operatorId];
+  async selectProduct(productId, seedTypeId, operatorId) {
+    const sql = "INSERT INTO operator_product (product_id, seed_type_id, operator_id) VALUES (?, ?, ?)";
+    const values = [productId, seedTypeId, operatorId];
     const [result] = await pool.execute(sql, values);
     return result[0];
   },

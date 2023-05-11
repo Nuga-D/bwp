@@ -20,12 +20,12 @@ module.exports = {
     return await operatorDao.getOperatorByEmail(email);
   },
 
-  async getAllOperators() {
-    return await operatorDao.getAllOperators();
+  async getRegisteredOperators() {
+    return await operatorDao.getRegisteredOperators();
   },
 
-  async selectProduct(product, seedType, operatorId) {
-    return await operatorDao.selectProduct(product, seedType, operatorId);
+  async selectProduct(productId, seedTypeId, operatorId) {
+    return await operatorDao.selectProduct(productId, seedTypeId, operatorId);
   },
 
   async getVerification(operatorId) {

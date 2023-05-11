@@ -150,8 +150,8 @@ module.exports = {
       }
 
       const productAdd = await operatorService.selectProduct(
-        product,
-        seedType,
+        productIdInput,
+        seedTypeInfo.id,
         operatorId
       );
 

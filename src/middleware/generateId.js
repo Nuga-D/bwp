@@ -2,7 +2,7 @@ const pool = require('../db/pool')
 
 const generateOperatorId = async function() {
   // Retrieve the current highest sequence number from the database
-  const query = 'SELECT MAX(SUBSTRING_INDEX(id, "-", 1)) AS max_sequence FROM users;'
+  const query = 'SELECT MAX(SUBSTRING_INDEX(unique_id, "-", 1)) AS max_sequence FROM users WHERE role = "operator";'
   const [result] = await pool.query(query)
   const maxSequence = parseInt(result[0].max_sequence) || 0
   
@@ -18,9 +18,9 @@ const generateOperatorId = async function() {
 
 const generateAdminId = async function() {
   // Retrieve the current highest sequence number from the database
-  const query = 'SELECT MAX(SUBSTRING_INDEX(id, "-", 1)) AS max_sequence FROM users;'
+  const query = 'SELECT MAX(SUBSTRING_INDEX(unique_id, "-", 1)) AS max_sequence FROM users WHERE role = "admin";'
   const [result] = await pool.query(query)
-  const maxSequence = result[0].max_sequence || 0
+  const maxSequence = parseInt(result[0].max_sequence) || 0
   
   // Increment the sequence number by one
   const newSequence = maxSequence + 1
@@ -33,9 +33,9 @@ const generateAdminId = async function() {
 
 const generateMemberId = async function() {
   // Retrieve the current highest sequence number from the database
-  const query = 'SELECT MAX(SUBSTRING_INDEX(id, "-", 1)) AS max_sequence FROM users;'
+  const query = 'SELECT MAX(SUBSTRING_INDEX(unique_id, "-", 1)) AS max_sequence FROM users WHERE role = "member";'
   const [result] = await pool.query(query)
-  const maxSequence = result[0].max_sequence || 0
+  const maxSequence = parseInt(result[0].max_sequence) || 0
   
   // Increment the sequence number by one
   const newSequence = maxSequence + 1
@@ -48,9 +48,9 @@ const generateMemberId = async function() {
 
 const generateFOsId = async function() {
   // Retrieve the current highest sequence number from the database
-  const query = 'SELECT MAX(SUBSTRING_INDEX(id, "-", 1)) AS max_sequence FROM users;'
+  const query = 'SELECT MAX(SUBSTRING_INDEX(unique_id, "-", 1)) AS max_sequence FROM users WHERE role = "FO";'
   const [result] = await pool.query(query)
-  const maxSequence = result[0].max_sequence || 0
+  const maxSequence = parseInt(result[0].max_sequence) || 0
   
   // Increment the sequence number by one
   const newSequence = maxSequence + 1
@@ -63,9 +63,9 @@ const generateFOsId = async function() {
 
 const generateTGLsId = async function() {
   // Retrieve the current highest sequence number from the database
-  const query = 'SELECT MAX(SUBSTRING_INDEX(id, "-", 1)) AS max_sequence FROM users;'
+  const query = 'SELECT MAX(SUBSTRING_INDEX(unique_id, "-", 1)) AS max_sequence FROM users WHERE role = "TGL";'
   const [result] = await pool.query(query)
-  const maxSequence = result[0].max_sequence || 0
+  const maxSequence = parseInt(result[0].max_sequence) || 0
   
   // Increment the sequence number by one
   const newSequence = maxSequence + 1

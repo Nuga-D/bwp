@@ -4,7 +4,7 @@ const idGen = require("../middleware/generateId");
 module.exports = {
   async createUser(email, password, role) {
     const sql =
-      "INSERT INTO users (id, email, password, role, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())";
+      "INSERT INTO users (unique_id, email, password, role, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())";
     let id = "";
     if (role === "admin") {
       id = await idGen.generateAdminId();
@@ -23,7 +23,7 @@ module.exports = {
   
     // Return the id, email, and role as a result
     return {
-      id: id,
+      unique_id: id,
       email: email,
       role: role,
     };
