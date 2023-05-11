@@ -52,15 +52,21 @@ module.exports = {
     try {
       const existingUser = await userService.authenticate(email, password);
       const verified = await operatorService.getVerification(existingUser.id);
-
+      let isVerified = '';
       let token = '';
+
+      if (typeof verified === 'undefined') {
+        isVerified = 0;
+      } else {
+        isVerified = verified.is_verified;
+      }
 
       if (existingUser.role === "operator") {
         token = jwt.sign(
           {
             userId: existingUser.id,
             role: existingUser.role,
-            isVerified: verified.is_verified,
+            isVerified: isVerified,
           },
           config.secretKey,
           { expiresIn: "30d" }

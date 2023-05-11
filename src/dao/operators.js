@@ -15,14 +15,14 @@ module.exports = {
     lastName,
     phoneNumber,
     nationality,
-    state,
-    lga,
+    stateId,
+    lgaId,
     sex,
     dob,
     nin
   ) {
     const sql =
-      "INSERT INTO operator_profile (operator_id, first_name, last_name, phone_number, nationality, state, lga, sex, dob, nin, user_picture, created_at, updated_at, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)";
+      "INSERT INTO operator_profile (operator_id, first_name, last_name, phone_number, nationality, state_id, lga_id, sex, dob, nin, user_picture, created_at, updated_at, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)";
     const picture = "nan";
     const isVerified = "0";
     const values = [
@@ -31,8 +31,8 @@ module.exports = {
       lastName,
       phoneNumber,
       nationality,
-      state,
-      lga,
+      stateId,
+      lgaId,
       sex,
       dob,
       nin,
@@ -58,7 +58,7 @@ module.exports = {
   },
 
   async getAllOperators() {
-    const sql = "SELECT * FROM users WHERE role = 'operator'";
+    const sql = "SELECT id, email, role FROM users WHERE role = 'operator'";
     const [result] = await pool.execute(sql);
     return result;
   },

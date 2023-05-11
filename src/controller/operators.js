@@ -76,8 +76,8 @@ module.exports = {
         lastName,
         phoneNumber,
         nationality,
-        state,
-        lga,
+        stateIdInput,
+        lgaInfo.id,
         sex,
         dob,
         nin

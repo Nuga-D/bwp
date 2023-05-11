@@ -8,8 +8,8 @@ module.exports = {
     return await operatorDao.getOperatorById(id);
   },
 
-  async registerOperator(operator_id, firstName, lastName, phoneNumber, nationality, state, lga, sex, dob, nin) {
-    return await operatorDao.registerOperator(operator_id, firstName, lastName, phoneNumber, nationality, state, lga, sex, dob, nin);
+  async registerOperator(operator_id, firstName, lastName, phoneNumber, nationality, stateId, lgaId, sex, dob, nin) {
+    return await operatorDao.registerOperator(operator_id, firstName, lastName, phoneNumber, nationality, stateId, lgaId, sex, dob, nin);
   },
 
   async addPicture(picture, operator_id) {
