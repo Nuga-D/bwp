@@ -17,8 +17,8 @@ module.exports = {
     const states = await operatorService.getAllStates();
     const lgas = await operatorService.getLgas();
 
-    const stateNames = states.map(state => state.name);
-    const lgaNames = lgas.map(lga => lga.name);
+    const stateNames = states.map((state) => state.name);
+    const lgaNames = lgas.map((lga) => lga.name);
 
     const { error, value } = validation.registerOperatorSchema.validate(
       req.body
@@ -48,7 +48,7 @@ module.exports = {
 
       if (!stateNames.includes(state)) {
         return res.status(400).json({
-          message: "Selected state not a Nigerian state!"
+          message: "Selected state not a Nigerian state!",
         });
       }
 
@@ -56,7 +56,7 @@ module.exports = {
 
       if (!lgaNames.includes(lga)) {
         return res.status(400).json({
-          message: "Selected local government not in Nigeria!"
+          message: "Selected local government not in Nigeria!",
         });
       }
 
@@ -66,9 +66,9 @@ module.exports = {
 
       if (parseInt(stateId.id) !== parseInt(stateIdInput)) {
         return res.status(400).json({
-          message: "Selected LGA does not belong to the selected state"
-        })}
-
+          message: "Selected LGA does not belong to the selected state",
+        });
+      }
 
       const operator = await operatorService.registerOperator(
         operatorId,
@@ -103,9 +103,8 @@ module.exports = {
     const products = await operatorService.getAllProducts();
     const seedTypes = await operatorService.getSeedTypes();
 
-    const productNames = products.map(product => product.name);
-    const seedTypeNames = seedTypes.map(seedType => seedType.name);
-
+    const productNames = products.map((product) => product.name);
+    const seedTypeNames = seedTypes.map((seedType) => seedType.name);
 
     const { error, value } = validation.selectProductSchema.validate(req.body);
     if (error) {
@@ -127,7 +126,8 @@ module.exports = {
 
       if (!productNames.includes(product)) {
         return res.status(400).json({
-          message: "Selected product not available at this time. Check back later!"
+          message:
+            "Selected product not available at this time. Check back later!",
         });
       }
 
@@ -135,7 +135,8 @@ module.exports = {
 
       if (!seedTypeNames.includes(seedType)) {
         return res.status(400).json({
-          message: "Selected seed type not available at this time. Check back later!"
+          message:
+            "Selected seed type not available at this time. Check back later!",
         });
       }
 
@@ -145,8 +146,8 @@ module.exports = {
 
       if (parseInt(productId.id) !== parseInt(productIdInput)) {
         return res.status(400).json({
-          message: "Selected seed type does not belong to the selected product"
-        })
+          message: "Selected seed type does not belong to the selected product",
+        });
       }
 
       const productAdd = await operatorService.selectProduct(
@@ -164,6 +165,45 @@ module.exports = {
     }
   },
 
+  async addOperatorPicture(req, res) {
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(" ")[1];
+    const decodedToken = jwt.verify(token, config.secretKey);
+    const operatorId = decodedToken.userId;
+    const role = decodedToken.role;
+
+    try {
+      if (role !== "operator") {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Use multer to get the picture from the request
+      upload.single("picture")(req, res, async function (err) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ message: "Internal server error" });
+        }
+
+        // Get the picture file from the request object
+        const picture = req.file;
+
+        const filename = picture.originalname;
+
+        // Call the service to add the picture
+        const operator = await operatorService.addOperatorPicture(
+          filename,
+          operatorId
+        );
+        res.status(200).json({
+          message: `operator ${operatorId} picture added successfully, an email will be sent upon verification`,
+        });
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
   async recruitFO(req, res) {
     const authHeader = req.headers.authorization;
     const token = authHeader.split(" ")[1];
@@ -171,9 +211,9 @@ module.exports = {
     const operatorId = decodedToken.userId;
     const role = decodedToken.role;
     const verified = parseInt(decodedToken.isVerified);
-    const foId = req.params.foId;
-    const fos = foService.getAllFOs;
-    const foIds = fos.map((fo) => fo.id);
+    const foId = req.body.foId;
+    const fos = await foService.getAllFOs();
+    const foIds = fos.map((fo) => fo.unique_id);
 
     try {
       if (role !== "operator") {
@@ -186,7 +226,7 @@ module.exports = {
           .json({ message: "Request verification from admin to progress!" });
       }
 
-      if (!foIds.includes(parseInt(foId))) {
+      if (!foIds.includes(foId)) {
         return res
           .status(401)
           .json({ message: `Field Officer ${foId} does not exist` });
@@ -214,12 +254,109 @@ module.exports = {
     }
   },
 
-  async addPicture(req, res) {
+  async registerFO(req, res) {
     const authHeader = req.headers.authorization;
     const token = authHeader.split(" ")[1];
     const decodedToken = jwt.verify(token, config.secretKey);
     const operatorId = decodedToken.userId;
     const role = decodedToken.role;
+    const foId = req.params.foId;
+    const fos = await operatorService.getFOsByOperatorId(operatorId);
+    const states = await operatorService.getAllStates();
+    const lgas = await operatorService.getLgas();
+
+    const foIds = fos.map((fo) => fo.fo_id);
+    const stateNames = states.map((state) => state.name);
+    const lgaNames = lgas.map((lga) => lga.name);
+
+    const { error, value } = validation.registerFOSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
+
+    const {
+      firstName,
+      lastName,
+      phoneNumber,
+      sex,
+      dob,
+      bvn,
+      nin,
+      state,
+      lga,
+      hub,
+      GovID,
+      GovIDtype,
+    } = value;
+
+    // Check if the selected LGA belongs to the selected state
+
+    try {
+      if (role !== "operator") {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      if (!foIds.includes(foId)) {
+        return res.status(401).json({
+          message: `Field Officer ${foId} has not been recruited by Operator ${operatorId}`,
+        });
+      }
+
+      if (!stateNames.includes(state)) {
+        return res.status(400).json({
+          message: "Selected state not a Nigerian state!",
+        });
+      }
+
+      const stateId = await operatorService.getStateIdByName(state);
+
+      if (!lgaNames.includes(lga)) {
+        return res.status(400).json({
+          message: "Selected local government not in Nigeria!",
+        });
+      }
+
+      const lgaInfo = await operatorService.getLga(lga);
+
+      const stateIdInput = lgaInfo.state_id;
+
+      if (parseInt(stateId.id) !== parseInt(stateIdInput)) {
+        return res.status(400).json({
+          message: "Selected LGA does not belong to the selected state",
+        });
+      }
+
+      const fo = await operatorService.registerFO(
+        foId,
+        firstName,
+        lastName,
+        phoneNumber,
+        sex,
+        dob,
+        bvn,
+        nin,
+        stateIdInput,
+        lgaInfo.id,
+        hub,
+        GovID,
+        GovIDtype
+      );
+      res
+        .status(200)
+        .json(`FO ${foId} registered successfully by Operator ${operatorId}`);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+
+  async addFOPicture(req, res) {
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(" ")[1];
+    const decodedToken = jwt.verify(token, config.secretKey);
+    const operatorId = decodedToken.userId;
+    const role = decodedToken.role;
+    const foId = req.params.foId;
 
     try {
       if (role !== "operator") {
@@ -239,16 +376,17 @@ module.exports = {
         const filename = picture.originalname;
 
         // Call the service to add the picture
-        const operator = await operatorService.addPicture(filename, operatorId);
-        res
-          .status(200)
-          .json({
-            message: `operator ${operatorId} picture added successfully, an email will be sent upon verification`,
-          });
+        const operator = await operatorService.addFOPicture(
+          filename,
+          foId
+        );
+        res.status(200).json({
+          message: `FO ${foId} government ID image uploaded successfully`,
+        });
       });
     } catch (err) {
       console.error(err);
-      res.status(500).json({message: "Internal server error"});
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 };

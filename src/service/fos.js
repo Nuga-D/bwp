@@ -1,7 +1,7 @@
 // service/admins.js
 
 const bcrypt = require("bcrypt");
-const foDao = require('../dao/fos');
+const foDao = require("../dao/fos");
 
 module.exports = {
   async getFOById(id) {
@@ -9,13 +9,12 @@ module.exports = {
   },
 
   async getAllFOs() {
-    return foDao.getAllFOs;
+    return await foDao.getAllFOs();
   },
-  
+
   async getFOByEmail(email) {
     return await foDao.getFOByEmail(email);
   },
-
 
   async authenticate(email, password) {
     const fo = await foDao.getFOByEmail(email);

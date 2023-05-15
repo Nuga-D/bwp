@@ -1,21 +1,44 @@
 // service/operators.js
 
 const bcrypt = require("bcrypt");
-const operatorDao = require('../dao/operators');
+const operatorDao = require("../dao/operators");
+const foDao = require("../dao/fos");
 
 module.exports = {
   async getOperatorById(id) {
     return await operatorDao.getOperatorById(id);
   },
 
-  async registerOperator(operator_id, firstName, lastName, phoneNumber, nationality, stateId, lgaId, sex, dob, nin) {
-    return await operatorDao.registerOperator(operator_id, firstName, lastName, phoneNumber, nationality, stateId, lgaId, sex, dob, nin);
+  async registerOperator(
+    operator_id,
+    firstName,
+    lastName,
+    phoneNumber,
+    nationality,
+    stateId,
+    lgaId,
+    sex,
+    dob,
+    nin
+  ) {
+    return await operatorDao.registerOperator(
+      operator_id,
+      firstName,
+      lastName,
+      phoneNumber,
+      nationality,
+      stateId,
+      lgaId,
+      sex,
+      dob,
+      nin
+    );
   },
 
-  async addPicture(picture, operator_id) {
-    return await operatorDao.addPicture(picture, operator_id);
+  async addOperatorPicture(picture, operator_id) {
+    return await operatorDao.addOperatorPicture(picture, operator_id);
   },
-  
+
   async getOperatorByEmail(email) {
     return await operatorDao.getOperatorByEmail(email);
   },
@@ -82,9 +105,41 @@ module.exports = {
 
   async getLga(lga) {
     return await operatorDao.getLga(lga);
-  }
+  },
+
+  async registerFO(
+    fo_id,
+    firstName,
+    lastName,
+    phoneNumber,
+    sex,
+    dob,
+    bvn,
+    nin,
+    stateId,
+    lgaId,
+    hub,
+    GovID,
+    GovIDtype
+  ) {
+    return await foDao.registerFO(
+      fo_id,
+      firstName,
+      lastName,
+      phoneNumber,
+      sex,
+      dob,
+      bvn,
+      nin,
+      stateId,
+      lgaId,
+      hub,
+      GovID,
+      GovIDtype
+    );
+  },
+
+  async addFOPicture(picture, fo_id) {
+    return await operatorDao.addFOPicture(picture, fo_id);
+  },
 };
-
-
-
-

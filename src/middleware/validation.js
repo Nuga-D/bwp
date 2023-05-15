@@ -18,7 +18,7 @@ const createUserValidation = Joi.object({
       "any.required": "Password is required",
     }),
     role: Joi.string()
-    .valid("admin", "operator")
+    .valid("admin", "operator", "FO")
     .required()
     .messages({
       'any.only': 'Invalid role. Allowed roles are \'admin\' and \'operator\'',
@@ -86,6 +86,66 @@ const registerOperatorSchema = Joi.object({
   }),
 });
 
+const registerFOSchema = Joi.object({
+  firstName: Joi.string().pattern(/^[A-Za-z]+$/).required().messages({
+    "string.pattern.base": "First name must contain only letters",
+    "any.required": "First name is required",
+  }),
+  lastName: Joi.string().pattern(/^[A-Za-z]+$/).required().messages({
+    "string.pattern.base": "Last name must contain only letters",
+    "any.required": "Last name is required",
+  }),
+  phoneNumber: Joi.string().length(11).pattern(/^\d+$/).required().messages({
+    "string.length": "Phone number must be 11 digits long",
+    "string.pattern.base": "Phone number must contain only digits",
+    "any.required": "Phone number is required",
+  }),
+  sex: Joi.string().valid("male", "female").required().messages({
+    "any.only": 'Invalid sex. Allowed values are \'male\' and \'female\'',
+    "any.required": "Sex is required",
+  }),
+  dob: Joi.date()
+    .format('iso')
+    .min("1930-01-01") // Adjust the minimum date as needed
+    .max("now") // Allow dates up to the current date
+    .required()
+    .messages({
+      "date.format": "Date of birth must be in the format YYYY-MM-DD",
+      "date.base": "Invalid date of birth",
+      "date.min": "Date of birth must be after 1930-01-01",
+      "date.max": "Date of birth cannot be in the future",
+      "any.required": "Date of birth is required",
+    }),
+  bvn: Joi.string().length(11).pattern(/^\d+$/).required().messages({
+    "string.length": "BVN must be 11 digits long",
+    "string.pattern.base": "BVN must contain only digits",
+    "any.required": "BVN is required",
+  }),
+  nin: Joi.string().length(11).pattern(/^\d+$/).required().messages({
+    "string.length": "NIN must be 11 digits long",
+    "string.pattern.base": "NIN must contain only digits",
+    "any.required": "NIN is required",
+  }),
+  state: Joi.string().required().messages({
+    "any.required": "State is required",
+  }),
+  lga: Joi.string().required().messages({
+    "any.required": "LGA is required",
+  }),
+  hub: Joi.string().required().messages({
+    "any.required": "LGA is required",
+  }),
+  GovID: Joi.string().length(11).pattern(/^\d+$/).required().messages({
+    "string.length": "GovID must be 11 digits long",
+    "string.pattern.base": "GovID must contain only digits",
+    "any.required": "GovID is required",
+  }),
+  GovIDtype: Joi.string().pattern(/^[A-Za-z]+$/).required().messages({
+    "any.required": "Government ID type is required",
+    "string.pattern.base": "Last name must contain only letters",
+  }),
+});
+
 const selectProductSchema = Joi.object({
   product: Joi.string().required().messages({
     "any.required": "Product is required",
@@ -99,5 +159,6 @@ module.exports = {
   createUserValidation,
   loginValidation,
   registerOperatorSchema,
+  registerFOSchema,
   selectProductSchema,
 };
