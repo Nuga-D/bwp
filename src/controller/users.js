@@ -51,7 +51,7 @@ module.exports = {
     const { email, password } = value;
     try {
       const existingUser = await userService.authenticate(email, password);
-      const verified = await operatorService.getVerification(existingUser.id);
+      const verified = await operatorService.getVerification(existingUser.unique_id);
       let isVerified = '';
       let token = '';
 

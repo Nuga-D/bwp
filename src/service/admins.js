@@ -16,6 +16,14 @@ module.exports = {
     return await adminDao.verifyOperator(verified, operatorId);
   },
 
+  async getRecruitedFOsByOperatorId(operatorId) {
+    return await adminDao.getRecruitedFOsByOperatorId(operatorId);
+  },
+
+  async getAllRecruitedFOs() {
+    return await adminDao.getAllRecruitedFOs();
+  },
+
   async authenticate(email, password) {
     const admin = await adminDao.getAdminByEmail(email);
     if (!admin) {

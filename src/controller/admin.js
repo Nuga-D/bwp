@@ -49,4 +49,41 @@ module.exports = {
       res.status(500).json({ message: "Error getting operator" });
     }
   },
+
+  async getRecruitedFOsByOperatorId(req, res) {
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(" ")[1];
+    const decodedToken = jwt.verify(token, config.secretKey);
+    const role = decodedToken.role;
+    const operatorId = req.body.operatorId;
+    try {
+      if (role !== "admin") {
+        return res.status(401).json({message: "Unauthorized"});
+      }
+      const operator_FO = await adminService.getRecruitedFOsByOperatorId(operatorId);
+      res.json({ operator_FO });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error getting operator" });
+    }
+
+  },
+
+  async getAllRecruitedFOs(req, res) {
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(" ")[1];
+    const decodedToken = jwt.verify(token, config.secretKey);
+    const role = decodedToken.role;
+    try {
+      if (role !== "admin") {
+        return res.status(401).json({message: "Unauthorized"});
+      }
+      const operator_FO = await adminService.getAllRecruitedFOs();
+      res.json({ operator_FO });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error getting operator" });
+    }
+
+  }
 };

@@ -3,7 +3,8 @@ const mysql = require('mysql2/promise');
 const dbConfig = {
   host: "localhost",
   user: "root",
-  password: "root",
+  port: "3304",
+  password: "Timidade01.",
   database: "bwp",
 };
 

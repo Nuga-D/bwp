@@ -37,7 +37,7 @@ module.exports = {
     GovIDtype
   ) {
     const sql =
-      "INSERT INTO fos_profile (fo_id, first_name, last_name, phone_number, sex, dob, bvn, nin, state_id, lga_id, hub, gov_id, gov_id_type, gov_id_image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+      "INSERT INTO fos_profile (fo_id, first_name, last_name, phone_number, sex, dob, bvn, nin, state_id, lga_id, hub_id, gov_id, gov_id_type, gov_id_image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
     const picture = "nan";
     const values = [
       fo_id,

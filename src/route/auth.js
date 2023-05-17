@@ -17,6 +17,8 @@ router.post('/operators/registerFO/:foId', operatorController.registerFO);
 router.get('/operators/getFOs/:operatorId', operatorController.getFOsByOperatorId);
 router.post('/admins/verify/:operatorId', adminController.verifyOperator);
 router.get('/admins/getRegisteredOperators', adminController.getRegisteredOperators);
+router.get('/admins/getRecruitedFOsByOperatorId', adminController.getRecruitedFOsByOperatorId);
+router.get('/admins/getRecruitedFOs', adminController.getAllRecruitedFOs);
 
 
 

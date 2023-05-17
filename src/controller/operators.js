@@ -157,7 +157,7 @@ module.exports = {
       );
 
       res.status(200).json({
-        message: `Product ${product} with seed type ${seedType} has been slsected for operator ${operatorId}, further directions will be sent via email`,
+        message: `Product ${product} with seed type ${seedType} has been selected for operator ${operatorId}, further directions will be sent via email`,
       });
     } catch (err) {
       console.error(err);
@@ -213,7 +213,9 @@ module.exports = {
     const verified = parseInt(decodedToken.isVerified);
     const foId = req.body.foId;
     const fos = await foService.getAllFOs();
+    const recruitedFOs = await operatorService.getRecruitedFOs();
     const foIds = fos.map((fo) => fo.unique_id);
+    const recruitedFOIds = recruitedFOs.map((fo) => fo.fo_id);
 
     try {
       if (role !== "operator") {
@@ -230,6 +232,12 @@ module.exports = {
         return res
           .status(401)
           .json({ message: `Field Officer ${foId} does not exist` });
+      }
+
+      if (recruitedFOIds.includes(foId)) {
+        return res
+          .status(401)
+          .json({ message: `Field Officer ${foId} already recruited` });
       }
 
       const result = await operatorService.recruitFO(operatorId, foId);
@@ -264,10 +272,12 @@ module.exports = {
     const fos = await operatorService.getFOsByOperatorId(operatorId);
     const states = await operatorService.getAllStates();
     const lgas = await operatorService.getLgas();
+    const hubs = await operatorService.getAllHubs();
 
     const foIds = fos.map((fo) => fo.fo_id);
     const stateNames = states.map((state) => state.name);
     const lgaNames = lgas.map((lga) => lga.name);
+    const hubNames = hubs.map((hub) => hub.label);
 
     const { error, value } = validation.registerFOSchema.validate(req.body);
     if (error) {
@@ -326,6 +336,14 @@ module.exports = {
         });
       }
 
+      if (!hubNames.includes(hub)) {
+        return res.status(400).json({
+          message: "Selected hub not a Babban Gona hub!",
+        });
+      }
+
+      const hubId = await operatorService.getHubIdByName(hub);
+
       const fo = await operatorService.registerFO(
         foId,
         firstName,
@@ -337,7 +355,7 @@ module.exports = {
         nin,
         stateIdInput,
         lgaInfo.id,
-        hub,
+        hubId.id,
         GovID,
         GovIDtype
       );
@@ -376,10 +394,7 @@ module.exports = {
         const filename = picture.originalname;
 
         // Call the service to add the picture
-        const operator = await operatorService.addFOPicture(
-          filename,
-          foId
-        );
+        const operator = await operatorService.addFOPicture(filename, foId);
         res.status(200).json({
           message: `FO ${foId} government ID image uploaded successfully`,
         });

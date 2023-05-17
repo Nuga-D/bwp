@@ -95,6 +95,12 @@ module.exports = {
     return result;
   },
 
+  async getRecruitedFOs() {
+    const sql = "SELECT fo_id FROM operator_fo";
+    const [result] = await pool.execute(sql);
+    return result;
+  },
+
   async getAllProducts() {
     const sql = "SELECT * FROM products";
     const [result] = await pool.execute(sql);
@@ -125,9 +131,21 @@ module.exports = {
     return result;
   },
 
+  async getAllHubs() {
+    const sql = "SELECT * FROM hubs";
+    const [result] = await pool.execute(sql);
+    return result;
+  },
+
   async getStateIdByName(stateName) {
     const sql = "SELECT id FROM states WHERE name = ?";
     const [result] = await pool.execute(sql, [stateName]);
+    return result[0];
+  },
+
+  async getHubIdByName(hubName) {
+    const sql = "SELECT id FROM hubs WHERE label = ?";
+    const [result] = await pool.execute(sql, [hubName]);
     return result[0];
   },
 

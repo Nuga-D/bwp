@@ -95,8 +95,16 @@ module.exports = {
     return operatorDao.getAllStates();
   },
 
+  async getAllHubs() {
+    return operatorDao.getAllHubs();
+  },
+
   async getStateIdByName(stateName) {
     return await operatorDao.getStateIdByName(stateName);
+  },
+
+  async getHubIdByName(hubName) {
+    return await operatorDao.getHubIdByName(hubName);
   },
 
   async getLgas() {
@@ -142,4 +150,9 @@ module.exports = {
   async addFOPicture(picture, fo_id) {
     return await operatorDao.addFOPicture(picture, fo_id);
   },
+
+  async getRecruitedFOs() {
+    return await operatorDao.getRecruitedFOs();
+  }
+  
 };
