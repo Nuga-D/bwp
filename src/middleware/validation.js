@@ -140,9 +140,9 @@ const registerFOSchema = Joi.object({
     "string.pattern.base": "GovID must contain only digits",
     "any.required": "GovID is required",
   }),
-  GovIDtype: Joi.string().pattern(/^[A-Za-z]+$/).required().messages({
-    "any.required": "Government ID type is required",
-    "string.pattern.base": "Last name must contain only letters",
+  GovIDtype: Joi.string().valid("Drivers License", "Voters Card", "International Passport").required().messages({
+    "any.only": 'Invalid Government ID type. Allowed values are \'Drivers License\', \'Voters Card\' and \'International Passport\'',
+    "any.required": "Government ID type is required"
   }),
 });
 
