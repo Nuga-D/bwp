@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const adminService = require("../service/admins");
 const operatorService = require("../service/operators");
 const config = require("../../config");
-const validation = require("../middleware/validation");
 
 module.exports = {
   async verifyOperator(req, res) {
@@ -22,14 +21,12 @@ module.exports = {
       }
 
       const verify = await adminService.verifyOperator(isVerified, operatorId);
-      res
-        .status(200)
-        .json({
-          message: `operator ${operatorId} verified successfully by admin ${adminId}, an email will be sent to the affected operator`,
-        });
+      res.status(200).json({
+        message: `operator ${operatorId} verified successfully by admin ${adminId}, an email will be sent to the affected operator`,
+      });
     } catch (err) {
       console.error(err);
-      res.status(500).json({message: "Internal server error"});
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 
@@ -40,7 +37,7 @@ module.exports = {
     const role = decodedToken.role;
     try {
       if (role !== "admin") {
-        return res.status(401).json({message: "Unauthorized"});
+        return res.status(401).json({ message: "Unauthorized" });
       }
       const operators = await operatorService.getRegisteredOperators();
       res.json({ operators });
@@ -58,15 +55,16 @@ module.exports = {
     const operatorId = req.body.operatorId;
     try {
       if (role !== "admin") {
-        return res.status(401).json({message: "Unauthorized"});
+        return res.status(401).json({ message: "Unauthorized" });
       }
-      const operator_FO = await adminService.getRecruitedFOsByOperatorId(operatorId);
+      const operator_FO = await adminService.getRecruitedFOsByOperatorId(
+        operatorId
+      );
       res.json({ operator_FO });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Error getting operator" });
     }
-
   },
 
   async getAllRecruitedFOs(req, res) {
@@ -76,7 +74,7 @@ module.exports = {
     const role = decodedToken.role;
     try {
       if (role !== "admin") {
-        return res.status(401).json({message: "Unauthorized"});
+        return res.status(401).json({ message: "Unauthorized" });
       }
       const operator_FO = await adminService.getAllRecruitedFOs();
       res.json({ operator_FO });
@@ -84,6 +82,18 @@ module.exports = {
       console.error(error);
       res.status(500).json({ message: "Error getting operator" });
     }
+  },
 
-  }
+  async getTestQuestions(req, res) {
+    const numQuestionsPerCategory = 5;
+
+    adminService.generateRandomQuestions(numQuestionsPerCategory)
+      .then((questions) => {
+        res.json({ TestQuestions: questions });
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).json({ message: "Error generating test questions" });
+      });
+  },
 };

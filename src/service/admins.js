@@ -2,6 +2,7 @@
 
 const bcrypt = require("bcrypt");
 const adminDao = require('../dao/admins');
+const {parseSpreadsheet} = require('../middleware/parseSpreadsheet');
 
 module.exports = {  
   async getAdminById(id) {
@@ -35,4 +36,30 @@ module.exports = {
     }
     return admin;
   },
+
+  async generateRandomQuestions(numQuestionsPerCategory) {
+    const questions = await adminDao.getTestQuestions();
+  
+    const categories = {
+      A: [],
+      B: [],
+      C: [],
+    };
+  
+    questions.forEach((question) => {
+      const { question: questionText, category, options } = question;
+      if (categories[category]) {
+      categories[category].push({ question: questionText, options });
+      }
+      });
+  
+    const selectedQuestions = [];
+    Object.values(categories).forEach((categoryQuestions) => {
+      const shuffledQuestions = categoryQuestions.sort(() => Math.random() - 0.5);
+      const selectedCategoryQuestions = shuffledQuestions.slice(0, numQuestionsPerCategory);
+      selectedQuestions.push(...selectedCategoryQuestions);
+    });
+  
+    return selectedQuestions;
+  }
 };

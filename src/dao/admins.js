@@ -60,4 +60,10 @@ module.exports = {
     const [result] = await pool.execute(sql);
     return result;
   },
+
+  async getTestQuestions() {
+    const sql = 'SELECT * FROM questions';
+    const [result] = await pool.execute(sql);
+    return result;
+  }
 };
