@@ -21,6 +21,19 @@ module.exports = {
     return result[0];
   },
 
+  async getFOByID(nin, bvn, gov_id) {
+    const sql = "SELECT fo_id, first_name, last_name FROM fos_profile WHERE nin = ? OR bvn = ? OR gov_id = ?";
+    const values = [nin, bvn, gov_id];
+    const [result] = await pool.execute(sql, values);
+    return result[0];
+  },
+
+  async getFODetails() {
+    const sql = 'SELECT phone_number, bvn, nin, gov_id FROM fos_profile';
+    const [result] = await pool.execute(sql);
+    return result;
+  },
+
   async registerFO(
     fo_id,
     firstName,

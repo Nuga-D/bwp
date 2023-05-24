@@ -47,9 +47,9 @@ module.exports = {
     };
   
     questions.forEach((question) => {
-      const { question: questionText, category, options } = question;
+      const {id, question:  questionText, category, options } = question;
       if (categories[category]) {
-      categories[category].push({ question: questionText, options });
+      categories[category].push({ id, question: questionText, options });
       }
       });
   
@@ -61,5 +61,17 @@ module.exports = {
     });
   
     return selectedQuestions;
+  },
+
+  async getTestAnswersByIds(questionIds) {
+    return await adminDao.getTestAnswersByIds(questionIds);
+  },
+
+  async insertFOscore(adminId, FOid, operatorId, score) {
+    return await adminDao.insertFOscore(adminId, FOid, operatorId, score);
+  },
+
+  async deleteFOscore(FOid) {
+    return await adminDao.deleteFOscore(FOid);
   }
 };

@@ -58,9 +58,9 @@ module.exports = {
   },
 
   async getRegisteredOperators() {
-    const sql = `SELECT u.unique_id, u.email, u.role, op.is_verified
+    const sql = `SELECT u.unique_id, u.email, u.role, op.nin, op.phone_number, op.is_verified
     FROM users u
-    JOIN operator_profile op ON u.unique_id = op.operator_id
+    LEFT JOIN operator_profile op ON u.unique_id = op.operator_id
     WHERE u.role = 'operator';
     `;
     const [result] = await pool.execute(sql);
@@ -99,6 +99,13 @@ module.exports = {
     const sql = "SELECT fo_id FROM operator_fo";
     const [result] = await pool.execute(sql);
     return result;
+  },
+
+  async getOperatorIdByFOid(FOid) {
+    const sql = "SELECT operator_id FROM operator_fo WHERE fo_id = ?";
+    const values = [FOid];
+    const [result] = await pool.execute(sql, values);
+    return result[0];
   },
 
   async getAllProducts() {

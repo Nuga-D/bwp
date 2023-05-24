@@ -63,6 +63,10 @@ module.exports = {
     return operatorDao.getFOsByOperatorId(operatorId);
   },
 
+  async getOperatorIdByFOid(FOid) {
+    return await operatorDao.getOperatorIdByFOid(FOid);
+  },
+
   async authenticate(email, password) {
     const operator = await operatorDao.getOperatorByEmail(email);
     if (!operator) {

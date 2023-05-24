@@ -16,6 +16,14 @@ module.exports = {
     return await foDao.getFOByEmail(email);
   },
 
+  async getFOByID(nin, bvn, gov_id) {
+    return await foDao.getFOByID(nin, bvn, gov_id);
+  },
+
+  async getFODetails() {
+    return await foDao.getFODetails();
+  },
+
   async authenticate(email, password) {
     const fo = await foDao.getFOByEmail(email);
     if (!fo) {

@@ -19,7 +19,11 @@ router.post('/admins/verify/:operatorId', adminController.verifyOperator);
 router.get('/admins/getRegisteredOperators', adminController.getRegisteredOperators);
 router.get('/admins/getRecruitedFOsByOperatorId', adminController.getRecruitedFOsByOperatorId);
 router.get('/admins/getRecruitedFOs', adminController.getAllRecruitedFOs);
-router.get('/admins/test-questions', adminController.getTestQuestions);
+router.get('/admins/testQuestions', adminController.getTestQuestions);
+router.post('/admins/markAnswers', adminController.markAnswers);
+router.post('/admins/retakeTest', adminController.retakeTest);
+
+
 
 
 

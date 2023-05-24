@@ -16,9 +16,13 @@ module.exports = {
     const role = decodedToken.role;
     const states = await operatorService.getAllStates();
     const lgas = await operatorService.getLgas();
+    const registeredOperators = await operatorService.getRegisteredOperators();
 
     const stateNames = states.map((state) => state.name);
     const lgaNames = lgas.map((lga) => lga.name);
+    const operatorNins = registeredOperators.map((operator) => operator.nin);
+    const operatorPhoneNumbers = registeredOperators.map((operator) => operator.phone_number);
+
 
     const { error, value } = validation.registerOperatorSchema.validate(
       req.body
@@ -67,8 +71,20 @@ module.exports = {
       if (parseInt(stateId.id) !== parseInt(stateIdInput)) {
         return res.status(400).json({
           message: "Selected LGA does not belong to the selected state",
-        });
+        }); 
       }
+
+      if (operatorNins.includes(nin)) {
+        return res.status(400).json({
+          message: "nin already exists!",
+        });
+      } 
+
+      if (operatorPhoneNumbers.includes(phoneNumber)) {
+        return res.status(400).json({
+          message: "Phone number already exists!",
+        });
+      } 
 
       const operator = await operatorService.registerOperator(
         operatorId,
@@ -273,11 +289,16 @@ module.exports = {
     const states = await operatorService.getAllStates();
     const lgas = await operatorService.getLgas();
     const hubs = await operatorService.getAllHubs();
+    const FODetails = await foService.getFODetails();
 
     const foIds = fos.map((fo) => fo.fo_id);
     const stateNames = states.map((state) => state.name);
     const lgaNames = lgas.map((lga) => lga.name);
     const hubNames = hubs.map((hub) => hub.label);
+    const FONins = FODetails.map((FO) => FO.nin);
+    const FOPhoneNumbers = FODetails.map((FO) => FO.phone_number);
+    const FOBvns = FODetails.map((FO) => FO.bvn);
+    const FOGovIds = FODetails.map((FO) => FO.gov_id);
 
     const { error, value } = validation.registerFOSchema.validate(req.body);
     if (error) {
@@ -339,6 +360,30 @@ module.exports = {
       if (!hubNames.includes(hub)) {
         return res.status(400).json({
           message: "Selected hub not a Babban Gona hub!",
+        });
+      }
+
+      if (FONins.includes(nin)) {
+        return res.status(400).json({
+          message: "nin already exists!",
+        });
+      }
+
+      if (FOPhoneNumbers.includes(phoneNumber)) {
+        return res.status(400).json({
+          message: "Phone number already exists!",
+        });
+      }
+
+      if (FOBvns.includes(bvn)) {
+        return res.status(400).json({
+          message: "BVN already exists!",
+        });
+      }
+
+      if (FOGovIds.includes(GovID)) {
+        return res.status(400).json({
+          message: "Government ID already exists!",
         });
       }
 

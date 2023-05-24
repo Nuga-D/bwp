@@ -24,11 +24,11 @@ module.exports = {
   },
 
   async getRecruitedFOsByOperatorId(operatorId) {
-    const sql = `SELECT of.fo_id, f.first_name, f.last_name, u.email
-      FROM operator_fo of
-      JOIN users u ON u.unique_id = of.fo_id
-      LEFT JOIN fos_profile f ON f.fo_id = of.fo_id
-      WHERE of.operator_id = ?`;
+    const sql = `SELECT opf.fo_id, f.first_name, f.last_name, u.email
+      FROM operator_fo opf
+      JOIN users u ON u.unique_id = opf.fo_id
+      LEFT JOIN fos_profile f ON f.fo_id = opf.fo_id
+      WHERE opf.operator_id = ?`;
     const values = [operatorId];
     const [result] = await pool.execute(sql, values);
     return result;
@@ -46,7 +46,10 @@ module.exports = {
           'fo_id', IFNULL(operator_fo.fo_id, ''),
           'fo_first_name', IFNULL(fos_profile.first_name, ''),
           'fo_last_name', IFNULL(fos_profile.last_name, ''),
-          'fo_email', IFNULL(fo_user.email, '')
+          'fo_email', IFNULL(fo_user.email, ''),
+          'fo_nin', IFNULL(fos_profile.nin, ''),
+          'fo_bvn', IFNULL(fos_profile.bvn, ''),
+          'fo_gov_id', IFNULL(fos_profile.gov_id, '')
         )
       )
     ) AS operator_fos
@@ -62,8 +65,34 @@ module.exports = {
   },
 
   async getTestQuestions() {
-    const sql = 'SELECT * FROM questions';
+    const sql = "SELECT * FROM questions";
     const [result] = await pool.execute(sql);
     return result;
+  },
+
+  async getTestAnswersByIds(questionIds) {
+    const placeholders = questionIds.map(() => '?').join(',');
+    const sql = `SELECT id, answer FROM questions WHERE id IN (${placeholders})`;
+    const [rows] = await pool.execute(sql, questionIds);
+    return rows;
+  },
+
+  async insertFOscore(adminId, FOid, operatorId, score) {
+    const sql = 'INSERT INTO fo_score (admin_id, fo_id, operator_id, fo_score) VALUES (?, ?, ?, ?)';
+    const values = [adminId, FOid, operatorId, score];
+    const [result] = await pool.execute(sql, values);
+    return {
+      foId: FOid,
+      score: score
+    }
+  },
+
+  async deleteFOscore(FOid) {
+    const sql = 'DELETE FROM fo_score WHERE fo_id = ?';
+    const values = [FOid];
+    const [result] = await pool.execute(sql, values);
+    return {
+      foId: FOid
+    }
   }
 };
