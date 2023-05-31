@@ -24,7 +24,7 @@ module.exports = {
     const operatorPhoneNumbers = registeredOperators.map((operator) => operator.phone_number);
 
 
-    const { error, value } = validation.registerOperatorSchema.validate(
+    const {error} = validation.registerOperatorSchema.validate(
       req.body
     );
     if (error) {
@@ -41,7 +41,7 @@ module.exports = {
       sex,
       dob,
       nin,
-    } = value;
+    } = req.body;
 
     // Check if the selected LGA belongs to the selected state
 
@@ -284,14 +284,10 @@ module.exports = {
     const decodedToken = jwt.verify(token, config.secretKey);
     const operatorId = decodedToken.userId;
     const role = decodedToken.role;
-    const foId = req.params.foId;
-    const fos = await operatorService.getFOsByOperatorId(operatorId);
     const states = await operatorService.getAllStates();
     const lgas = await operatorService.getLgas();
     const hubs = await operatorService.getAllHubs();
     const FODetails = await foService.getFODetails();
-
-    const foIds = fos.map((fo) => fo.fo_id);
     const stateNames = states.map((state) => state.name);
     const lgaNames = lgas.map((lga) => lga.name);
     const hubNames = hubs.map((hub) => hub.label);
@@ -299,12 +295,13 @@ module.exports = {
     const FOPhoneNumbers = FODetails.map((FO) => FO.phone_number);
     const FOBvns = FODetails.map((FO) => FO.bvn);
     const FOGovIds = FODetails.map((FO) => FO.gov_id);
-
-    const { error, value } = validation.registerFOSchema.validate(req.body);
+    let GovIDimage = '';
+  
+    const { error } = validation.registerFOSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ message: error.details[0].message });
     }
-
+  
     const {
       firstName,
       lastName,
@@ -318,100 +315,131 @@ module.exports = {
       hub,
       GovID,
       GovIDtype,
-    } = value;
-
-    // Check if the selected LGA belongs to the selected state
-
+    } = req.body;
+  
     try {
       if (role !== "operator") {
         return res.status(401).json({ message: "Unauthorized" });
       }
-
-      if (!foIds.includes(foId)) {
-        return res.status(401).json({
-          message: `Field Officer ${foId} has not been recruited by Operator ${operatorId}`,
-        });
-      }
-
+  
       if (!stateNames.includes(state)) {
         return res.status(400).json({
-          message: "Selected state not a Nigerian state!",
+          message: "Selected state is not a Nigerian state!",
         });
       }
-
+  
       const stateId = await operatorService.getStateIdByName(state);
-
+  
       if (!lgaNames.includes(lga)) {
         return res.status(400).json({
-          message: "Selected local government not in Nigeria!",
+          message: "Selected local government is not in Nigeria!",
         });
       }
-
+  
       const lgaInfo = await operatorService.getLga(lga);
-
       const stateIdInput = lgaInfo.state_id;
-
+  
       if (parseInt(stateId.id) !== parseInt(stateIdInput)) {
         return res.status(400).json({
           message: "Selected LGA does not belong to the selected state",
         });
       }
-
+  
       if (!hubNames.includes(hub)) {
         return res.status(400).json({
-          message: "Selected hub not a Babban Gona hub!",
+          message: "Selected hub is not a Babban Gona hub!",
         });
       }
-
+  
       if (FONins.includes(nin)) {
         return res.status(400).json({
-          message: "nin already exists!",
+          message: "NIN already exists!",
         });
       }
-
+  
       if (FOPhoneNumbers.includes(phoneNumber)) {
         return res.status(400).json({
           message: "Phone number already exists!",
         });
       }
-
+  
       if (FOBvns.includes(bvn)) {
         return res.status(400).json({
           message: "BVN already exists!",
         });
       }
-
+  
       if (FOGovIds.includes(GovID)) {
         return res.status(400).json({
           message: "Government ID already exists!",
         });
       }
-
-      const hubId = await operatorService.getHubIdByName(hub);
-
-      const fo = await operatorService.registerFO(
-        foId,
-        firstName,
-        lastName,
-        phoneNumber,
-        sex,
-        dob,
-        bvn,
-        nin,
-        stateIdInput,
-        lgaInfo.id,
-        hubId.id,
-        GovID,
-        GovIDtype
-      );
-      res
-        .status(200)
-        .json(`FO ${foId} registered successfully by Operator ${operatorId}`);
+  
+      if (GovIDtype === "International Passport") {
+        if (!(/^[A-Za-z]\d{8}$/.test(GovID))) {
+          return res.status(400).json({
+            message: "Government ID does not follow the right format for an International passport!",
+          });
+        }
+      }
+  
+      if (GovIDtype === "Voters Card") {
+        if (!(/^\d{2}[A-Za-z]\d[A-Za-z]{5}\d{10}$/.test(GovID))) {
+          return res.status(400).json({
+            message: "Government ID does not follow the right Voters Identification Number format!",
+          });
+        }
+      }
+  
+      if (GovIDtype === "Drivers License") {
+        if (!(/^[A-Za-z]{3}\d{5}[A-Za-z]{2}\d{2}$/.test(GovID))) {
+          return res.status(400).json({
+            message: "Government ID does not follow the right format for a Drivers License!",
+          });
+        }
+      }
+  
+      upload.single("picture")(req, res, async function (err) {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ message: "Internal server error" });
+        }
+  
+        // Get the picture file from the request object
+        const picture = req.file;
+        GovIDimage = picture.filename;
+  
+        try {
+          const hubId = await operatorService.getHubIdByName(hub);
+          const foId = await operatorService.registerFO(
+            firstName,
+            lastName,
+            phoneNumber,
+            sex,
+            dob,
+            bvn,
+            nin,
+            stateIdInput,
+            lgaInfo.id,
+            hubId.id,
+            GovID,
+            GovIDtype,
+            GovIDimage,
+            operatorId
+          );
+  
+          res.status(200).json(`FO ${foId.foId} registered successfully by Operator ${operatorId}`);
+        } catch (err) {
+          console.error(err);
+          res.status(500).json({ message: "Internal server error" });
+        }
+      });
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Internal server error" });
     }
-  },
+  }
+  ,
 
   async addFOPicture(req, res) {
     const authHeader = req.headers.authorization;

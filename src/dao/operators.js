@@ -83,21 +83,9 @@ module.exports = {
     return result[0];
   },
 
-  async recruitFO(operatorId, foId) {
-    const sql = "INSERT INTO operator_fo (operator_id, fo_id) VALUES (?, ?)";
-    const [result] = await pool.execute(sql, [operatorId, foId]);
-    return result[0];
-  },
-
   async getFOsByOperatorId(operatorId) {
     const sql = "SELECT * FROM operator_fo WHERE operator_id = ?";
     const [result] = await pool.execute(sql, [operatorId]);
-    return result;
-  },
-
-  async getRecruitedFOs() {
-    const sql = "SELECT fo_id FROM operator_fo";
-    const [result] = await pool.execute(sql);
     return result;
   },
 

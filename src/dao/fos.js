@@ -1,4 +1,5 @@
 const pool = require("../db/pool");
+const idGen = require("../middleware/generateId");
 
 module.exports = {
   async getFOById(id) {
@@ -35,7 +36,6 @@ module.exports = {
   },
 
   async registerFO(
-    fo_id,
     firstName,
     lastName,
     phoneNumber,
@@ -47,13 +47,15 @@ module.exports = {
     lgaId,
     hub,
     GovID,
-    GovIDtype
+    GovIDtype,
+    GovIDimage,
+    operator_id
   ) {
+    const foId = await idGen.generateFOsId();
     const sql =
-      "INSERT INTO fos_profile (fo_id, first_name, last_name, phone_number, sex, dob, bvn, nin, state_id, lga_id, hub_id, gov_id, gov_id_type, gov_id_image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
-    const picture = "nan";
+      "INSERT INTO fos_profile (fo_id, first_name, last_name, phone_number, sex, dob, bvn, nin, state_id, lga_id, hub_id, gov_id, gov_id_type, gov_id_image, operator_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
     const values = [
-      fo_id,
+      foId,
       firstName,
       lastName,
       phoneNumber,
@@ -66,9 +68,10 @@ module.exports = {
       hub,
       GovID,
       GovIDtype,
-      picture,
+      GovIDimage,
+      operator_id
     ];
     const [result] = await pool.execute(sql, values);
-    return result[0];
+    return {foId};
   },
 };

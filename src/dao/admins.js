@@ -23,7 +23,7 @@ module.exports = {
     return result[0];
   },
 
-  async getRecruitedFOsByOperatorId(operatorId) {
+  async getRegisteredFOsByOperatorId(operatorId) {
     const sql = `SELECT opf.fo_id, f.first_name, f.last_name, u.email
       FROM operator_fo opf
       JOIN users u ON u.unique_id = opf.fo_id
@@ -34,7 +34,7 @@ module.exports = {
     return result;
   },
 
-  async getAllRecruitedFOs() {
+  async getAllRegisteredFOs() {
     const sql = `SELECT
     operator_fo.operator_id,
     JSON_OBJECT(

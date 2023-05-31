@@ -55,10 +55,6 @@ module.exports = {
     return await operatorDao.getVerification(operatorId);
   },
 
-  async recruitFO(operatorId, foId) {
-    return operatorDao.recruitFO(operatorId, foId);
-  },
-
   async getFOsByOperatorId(operatorId) {
     return operatorDao.getFOsByOperatorId(operatorId);
   },
@@ -120,7 +116,6 @@ module.exports = {
   },
 
   async registerFO(
-    fo_id,
     firstName,
     lastName,
     phoneNumber,
@@ -132,10 +127,11 @@ module.exports = {
     lgaId,
     hub,
     GovID,
-    GovIDtype
+    GovIDtype,
+    GovIDimage,
+    operatorId
   ) {
     return await foDao.registerFO(
-      fo_id,
       firstName,
       lastName,
       phoneNumber,
@@ -147,7 +143,9 @@ module.exports = {
       lgaId,
       hub,
       GovID,
-      GovIDtype
+      GovIDtype,
+      GovIDimage,
+      operatorId
     );
   },
 

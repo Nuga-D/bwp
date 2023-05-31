@@ -135,9 +135,7 @@ const registerFOSchema = Joi.object({
   hub: Joi.string().required().messages({
     "any.required": "LGA is required",
   }),
-  GovID: Joi.string().length(11).pattern(/^\d+$/).required().messages({
-    "string.length": "GovID must be 11 digits long",
-    "string.pattern.base": "GovID must contain only digits",
+  GovID: Joi.string().required().messages({
     "any.required": "GovID is required",
   }),
   GovIDtype: Joi.string().valid("Drivers License", "Voters Card", "International Passport").required().messages({

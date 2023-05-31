@@ -17,12 +17,12 @@ module.exports = {
     return await adminDao.verifyOperator(verified, operatorId);
   },
 
-  async getRecruitedFOsByOperatorId(operatorId) {
-    return await adminDao.getRecruitedFOsByOperatorId(operatorId);
+  async getRegisteredFOsByOperatorId(operatorId) {
+    return await adminDao.getRegisteredFOsByOperatorId(operatorId);
   },
 
-  async getAllRecruitedFOs() {
-    return await adminDao.getAllRecruitedFOs();
+  async getAllRegisteredFOs() {
+    return await adminDao.getAllRegisteredFOs();
   },
 
   async authenticate(email, password) {
