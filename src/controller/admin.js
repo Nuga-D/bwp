@@ -48,27 +48,27 @@ module.exports = {
     }
   },
 
-  async getRecruitedFOsByOperatorId(req, res) {
+  async getRegisteredFOsByOperatorId(req, res) {
     const authHeader = req.headers.authorization;
     const token = authHeader.split(" ")[1];
     const decodedToken = jwt.verify(token, config.secretKey);
     const role = decodedToken.role;
-    const operatorId = req.body.operatorId;
+    const operatorId = req.params.operatorId;
     try {
       if (role !== "admin") {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const operator_FO = await adminService.getRecruitedFOsByOperatorId(
+      const operator_FO = await adminService.getRegisteredFOsByOperatorId(
         operatorId
       );
       res.json({ operator_FO });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Error getting operator" });
+      res.status(500).json({ message: "Error getting field Officer" });
     }
   },
 
-  async getAllRecruitedFOs(req, res) {
+  async getAllRegisteredFOs(req, res) {
     const authHeader = req.headers.authorization;
     const token = authHeader.split(" ")[1];
     const decodedToken = jwt.verify(token, config.secretKey);
@@ -77,11 +77,11 @@ module.exports = {
       if (role !== "admin") {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const operator_FO = await adminService.getAllRecruitedFOs();
+      const operator_FO = await adminService.getAllRegisteredFOs();
       res.json({ operator_FO });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Error getting operator" });
+      res.status(500).json({ message: "Error getting Field Officers" });
     }
   },
 
@@ -90,18 +90,48 @@ module.exports = {
     const token = authHeader.split(" ")[1];
     const decodedToken = jwt.verify(token, config.secretKey);
     const role = decodedToken.role;
+    const adminId = decodedToken.userId;
     const numQuestionsPerCategory = 5;
+    const foId = req.params.foId;
+    const operatorId = req.params.operatorId;
+    const foIdset = await foService.getFOIdsForSession();
+    const foIds = foIdset.map((FO) => FO.fo_id);
 
     try {
       if (role !== "admin") {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      adminService
-        .generateRandomQuestions(numQuestionsPerCategory)
-        .then((questions) => {
-          res.json({ TestQuestions: questions });
+      if (foIds.includes(foId)) {
+        return res.status(400).json({
+          message: "Questions have previously been generated for FO!",
         });
+      }
+
+      const questions = await adminService
+        .generateRandomQuestions(numQuestionsPerCategory);
+
+      const session = {
+        fo_id: foId,
+        operator_id: operatorId,
+        admin_id: adminId,
+      };
+
+      const foSessionId = await adminService.storeFOquestionSession(session);
+
+      for (const q of questions) {
+        const generatedQuestion = {
+          session_id: foSessionId,
+          question: q.question,
+          options: q.options,
+          original_question_id: q.id
+        }
+
+        const generatedQuestionId = await adminService.storeGeneratedQuestions(generatedQuestion);
+      }  
+       
+        
+      res.json({ foSessionId: foSessionId, TestQuestions: questions });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Error generating test questions" });
@@ -118,26 +148,35 @@ module.exports = {
     const bvn = req.body.bvn;
     const govId = req.body.gov_id;
     const userAnswers = req.body.userAnswers; // Assuming the answers are sent in the "TestAnswers" array of the request body
-    let FOid = "";
-    let FOfirstName = "";
-    let FOlastName = "";
+    const sessionId = req.body.foSessionId;
+    let foId = "";
+    let foFirstName = "";
+    let foLastName = "";
 
     try {
       if (role !== "admin") {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const FO = await foService.getFOByID(nin, bvn, govId);
+      const fo = await foService.getFOByID(nin, bvn, govId);
 
-      if (FO) {
-        FOid = FO.fo_id;
-        FOfirstName = FO.first_name;
-        FOlastName = FO.last_name;
+      if (fo) {
+        foId = fo.fo_id;
+        foFirstName = fo.first_name;
+        foLastName = fo.last_name;
       } else {
         return res.status(401).json({ message: "FO not yet registered!" });
       }
 
-      const operatorId = await operatorService.getOperatorIdByFOid(FOid);
+      const verifySessionId = await adminService.verifySessionId(foId);
+
+      const dbSessionId = verifySessionId.session_id;
+
+      if (parseInt(sessionId) !== parseInt(dbSessionId)) {
+        return res.status(401).json({ message: "FO cannot take this test!" });
+      }
+
+      const operatorId = await operatorService.getOperatorIdByFOid(foId);
 
       const questionIds = userAnswers.map((answer) => answer.id);
 
@@ -161,21 +200,23 @@ module.exports = {
       });
 
       const insertScore = await adminService.insertFOscore(
-        adminId,
-        FOid,
-        operatorId.operator_id,
-        score
+        score, foId
       );
 
-      if (score < 5) {
-        res.json(
-          `${FOfirstName} ${FOlastName}, your score is ${score}/15. Sorry this is very low, you cannot proceed`
-        );
-      } else {
-        res.json(
-          `${FOfirstName} ${FOlastName}, your score is ${score}/15. You passed the test!`
-        );
+      for (const r of userAnswers) {
+        const response = {
+          response: r.answer,
+          original_question_id: r.id,
+          session_id: dbSessionId
+        }
+
+        const insertFoResponse = await adminService.insertFoResponse(response.session_id, response.response, response.original_question_id);
       }
+
+
+        res.json(
+          `${foFirstName} ${foLastName}, test successfully taken. You'd get feedback via mail!`
+        );
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Error marking answers" });

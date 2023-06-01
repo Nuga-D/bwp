@@ -89,9 +89,9 @@ module.exports = {
     return result;
   },
 
-  async getOperatorIdByFOid(FOid) {
-    const sql = "SELECT operator_id FROM operator_fo WHERE fo_id = ?";
-    const values = [FOid];
+  async getOperatorIdByFOid(foId) {
+    const sql = "SELECT operator_id FROM fos_profile WHERE fo_id = ?";
+    const values = [foId];
     const [result] = await pool.execute(sql, values);
     return result[0];
   },

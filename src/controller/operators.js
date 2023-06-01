@@ -21,12 +21,11 @@ module.exports = {
     const stateNames = states.map((state) => state.name);
     const lgaNames = lgas.map((lga) => lga.name);
     const operatorNins = registeredOperators.map((operator) => operator.nin);
-    const operatorPhoneNumbers = registeredOperators.map((operator) => operator.phone_number);
-
-
-    const {error} = validation.registerOperatorSchema.validate(
-      req.body
+    const operatorPhoneNumbers = registeredOperators.map(
+      (operator) => operator.phone_number
     );
+
+    const { error } = validation.registerOperatorSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ message: error.details[0].message });
     }
@@ -71,20 +70,20 @@ module.exports = {
       if (parseInt(stateId.id) !== parseInt(stateIdInput)) {
         return res.status(400).json({
           message: "Selected LGA does not belong to the selected state",
-        }); 
+        });
       }
 
       if (operatorNins.includes(nin)) {
         return res.status(400).json({
           message: "nin already exists!",
         });
-      } 
+      }
 
       if (operatorPhoneNumbers.includes(phoneNumber)) {
         return res.status(400).json({
           message: "Phone number already exists!",
         });
-      } 
+      }
 
       const operator = await operatorService.registerOperator(
         operatorId,
@@ -295,151 +294,154 @@ module.exports = {
     const FOPhoneNumbers = FODetails.map((FO) => FO.phone_number);
     const FOBvns = FODetails.map((FO) => FO.bvn);
     const FOGovIds = FODetails.map((FO) => FO.gov_id);
-    let GovIDimage = '';
-  
-    const { error } = validation.registerFOSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
-    }
-  
-    const {
-      firstName,
-      lastName,
-      phoneNumber,
-      sex,
-      dob,
-      bvn,
-      nin,
-      state,
-      lga,
-      hub,
-      GovID,
-      GovIDtype,
-    } = req.body;
-  
-    try {
-      if (role !== "operator") {
-        return res.status(401).json({ message: "Unauthorized" });
+
+    upload.single("GovIDimage")(req, res, async function (err) {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal server error" });
       }
-  
-      if (!stateNames.includes(state)) {
-        return res.status(400).json({
-          message: "Selected state is not a Nigerian state!",
-        });
+
+      const { error, value } = validation.registerFOSchema.validate(req.body);
+      if (error) {
+        return res.status(400).json({ message: error.details[0].message });
       }
-  
-      const stateId = await operatorService.getStateIdByName(state);
-  
-      if (!lgaNames.includes(lga)) {
-        return res.status(400).json({
-          message: "Selected local government is not in Nigeria!",
-        });
-      }
-  
-      const lgaInfo = await operatorService.getLga(lga);
-      const stateIdInput = lgaInfo.state_id;
-  
-      if (parseInt(stateId.id) !== parseInt(stateIdInput)) {
-        return res.status(400).json({
-          message: "Selected LGA does not belong to the selected state",
-        });
-      }
-  
-      if (!hubNames.includes(hub)) {
-        return res.status(400).json({
-          message: "Selected hub is not a Babban Gona hub!",
-        });
-      }
-  
-      if (FONins.includes(nin)) {
-        return res.status(400).json({
-          message: "NIN already exists!",
-        });
-      }
-  
-      if (FOPhoneNumbers.includes(phoneNumber)) {
-        return res.status(400).json({
-          message: "Phone number already exists!",
-        });
-      }
-  
-      if (FOBvns.includes(bvn)) {
-        return res.status(400).json({
-          message: "BVN already exists!",
-        });
-      }
-  
-      if (FOGovIds.includes(GovID)) {
-        return res.status(400).json({
-          message: "Government ID already exists!",
-        });
-      }
-  
-      if (GovIDtype === "International Passport") {
-        if (!(/^[A-Za-z]\d{8}$/.test(GovID))) {
+
+      const {
+        firstName,
+        lastName,
+        phoneNumber,
+        sex,
+        dob,
+        bvn,
+        nin,
+        state,
+        lga,
+        hub,
+        GovID,
+        GovIDtype,
+      } = value;
+
+      // Get the picture file from the request object
+      const picture = req.file;
+      const GovIDimage = picture.filename;
+
+      try {
+        if (role !== "operator") {
+          return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        if (!stateNames.includes(state)) {
           return res.status(400).json({
-            message: "Government ID does not follow the right format for an International passport!",
+            message: "Selected state is not a Nigerian state!",
           });
         }
-      }
-  
-      if (GovIDtype === "Voters Card") {
-        if (!(/^\d{2}[A-Za-z]\d[A-Za-z]{5}\d{10}$/.test(GovID))) {
+
+        const stateId = await operatorService.getStateIdByName(state);
+
+        if (!lgaNames.includes(lga)) {
           return res.status(400).json({
-            message: "Government ID does not follow the right Voters Identification Number format!",
+            message: "Selected local government is not in Nigeria!",
           });
         }
-      }
-  
-      if (GovIDtype === "Drivers License") {
-        if (!(/^[A-Za-z]{3}\d{5}[A-Za-z]{2}\d{2}$/.test(GovID))) {
+
+        const lgaInfo = await operatorService.getLga(lga);
+        const stateIdInput = lgaInfo.state_id;
+
+        if (parseInt(stateId.id) !== parseInt(stateIdInput)) {
           return res.status(400).json({
-            message: "Government ID does not follow the right format for a Drivers License!",
+            message: "Selected LGA does not belong to the selected state",
           });
         }
-      }
-  
-      upload.single("picture")(req, res, async function (err) {
-        if (err) {
-          console.error(err);
-          return res.status(500).json({ message: "Internal server error" });
+
+        if (!hubNames.includes(hub)) {
+          return res.status(400).json({
+            message: "Selected hub is not a Babban Gona hub!",
+          });
         }
-  
-        // Get the picture file from the request object
-        const picture = req.file;
-        GovIDimage = picture.filename;
-  
-        try {
-          const hubId = await operatorService.getHubIdByName(hub);
-          const foId = await operatorService.registerFO(
-            firstName,
-            lastName,
-            phoneNumber,
-            sex,
-            dob,
-            bvn,
-            nin,
-            stateIdInput,
-            lgaInfo.id,
-            hubId.id,
-            GovID,
-            GovIDtype,
-            GovIDimage,
-            operatorId
+
+        if (FONins.includes(nin)) {
+          return res.status(400).json({
+            message: "NIN already exists!",
+          });
+        }
+
+        if (FOPhoneNumbers.includes(phoneNumber)) {
+          return res.status(400).json({
+            message: "Phone number already exists!",
+          });
+        }
+
+        if (FOBvns.includes(bvn)) {
+          return res.status(400).json({
+            message: "BVN already exists!",
+          });
+        }
+
+        if (FOGovIds.includes(GovID)) {
+          return res.status(400).json({
+            message: "Government ID already exists!",
+          });
+        }
+
+        if (GovIDtype === "International Passport") {
+          if (!/^[A-Za-z]\d{8}$/.test(GovID)) {
+            return res.status(400).json({
+              message:
+                "Government ID does not follow the right format for an International passport!",
+            });
+          }
+        }
+
+        if (GovIDtype === "Voters Card") {
+          if (!/^\d{2}[A-Za-z]\d[A-Za-z]{5}\d{10}$/.test(GovID)) {
+            return res.status(400).json({
+              message:
+                "Government ID does not follow the right Voters Identification Number format!",
+            });
+          }
+        }
+
+        if (GovIDtype === "Drivers License") {
+          if (!/^[A-Za-z]{3}\d{5}[A-Za-z]{2}\d{2}$/.test(GovID)) {
+            return res.status(400).json({
+              message:
+                "Government ID does not follow the right format for a Drivers License!",
+            });
+          }
+        }
+
+        
+
+        const hubId = await operatorService.getHubIdByName(hub);
+        const foId = await operatorService.registerFO(
+          firstName,
+          lastName,
+          phoneNumber,
+          sex,
+          dob,
+          bvn,
+          nin,
+          stateIdInput,
+          lgaInfo.id,
+          hubId.id,
+          GovID,
+          GovIDtype,
+          GovIDimage,
+          operatorId
+        );
+
+        res
+          .status(200)
+          .json(
+            `FO ${foId.foId} registered successfully by Operator ${operatorId}`
           );
-  
-          res.status(200).json(`FO ${foId.foId} registered successfully by Operator ${operatorId}`);
-        } catch (err) {
-          console.error(err);
-          res.status(500).json({ message: "Internal server error" });
-        }
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  }
-  ,
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    });
+  },
+
 
   async addFOPicture(req, res) {
     const authHeader = req.headers.authorization;

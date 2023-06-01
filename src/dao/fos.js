@@ -35,6 +35,12 @@ module.exports = {
     return result;
   },
 
+  async getFOIdsForSession() {
+    const sql = 'SELECT fo_id FROM fo_question_sessions';
+    const [result] = await pool.execute(sql);
+    return result;
+  },
+
   async registerFO(
     firstName,
     lastName,

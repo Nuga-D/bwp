@@ -17,9 +17,9 @@ router.post('/operators/registerFO', operatorController.registerFO);
 router.get('/operators/getFOs/:operatorId', operatorController.getFOsByOperatorId);
 router.post('/admins/verify/:operatorId', adminController.verifyOperator);
 router.get('/admins/getRegisteredOperators', adminController.getRegisteredOperators);
-router.get('/admins/getRecruitedFOsByOperatorId', adminController.getRecruitedFOsByOperatorId);
-router.get('/admins/getRecruitedFOs', adminController.getAllRecruitedFOs);
-router.get('/admins/testQuestions', adminController.getTestQuestions);
+router.get('/admins/getRegisteredFOsByOperatorId/:operatorId', adminController.getRegisteredFOsByOperatorId);
+router.get('/admins/getRegisteredFOs', adminController.getAllRegisteredFOs);
+router.get('/admins/generateTestQuestions/operator/:operatorId/fo/:foId', adminController.getTestQuestions);
 router.post('/admins/markAnswers', adminController.markAnswers);
 router.post('/admins/retakeTest', adminController.retakeTest);
 

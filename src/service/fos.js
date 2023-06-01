@@ -20,6 +20,10 @@ module.exports = {
     return await foDao.getFOByID(nin, bvn, gov_id);
   },
 
+  async getFOIdsForSession() {
+    return await foDao.getFOIdsForSession();
+  },
+
   async getFODetails() {
     return await foDao.getFODetails();
   },
